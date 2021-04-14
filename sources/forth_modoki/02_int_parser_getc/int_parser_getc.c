@@ -59,9 +59,47 @@ int parse_one(int prev_c, token_type *out_type, int *out_val) {
     return c;
 }
 
+void test_parse_one_123() {
+    token_type token_type;
+    int val;
+    int prev_c = '\0';
+
+    cl_getc_set_src("123");
+    prev_c = parse_one(prev_c, &token_type, &val);
+
+    assert(prev_c == EOF);
+    assert(token_type == TOKEN_NUMBER);
+    assert(val == 123);
+}
+
+void test_parse_one_123_456() {
+    token_type token_type;
+    int val;
+    int prev_c = '\0';
+
+    cl_getc_set_src("123 456");
+    prev_c = parse_one(prev_c, &token_type, &val);
+    assert(prev_c == ' ');
+    assert(token_type == TOKEN_NUMBER);
+    assert(val == 123);
+
+    prev_c = parse_one(prev_c, &token_type, &val);
+    assert(prev_c == '4');
+    assert(token_type == TOKEN_SPACE);
+
+    prev_c = parse_one(prev_c, &token_type, &val);
+    assert(prev_c == EOF);
+    assert(token_type == TOKEN_NUMBER);
+    assert(val == 456);
+}
+
 int main() {
     int answer1 = 0;
     int answer2 = 0;
+
+    test_parse_one_123();
+    // 入力を元に戻す
+    cl_getc_set_src("123 456");
 
     token_type token_type;
     int val;

@@ -40,6 +40,14 @@ int is_space(int c) {
     return c == ' ';
 }
 
+int is_open_curly(int c) {
+    return c == '{';
+}
+
+int is_close_curly(int c) {
+    return c == '}';
+}
+
 int is_slash(int c) {
     return c == '/';
 }
@@ -72,6 +80,16 @@ int parse_one(int prev_ch, struct Token *out_token) {
 
     if (is_eof(c)) {
         out_token->ltype = END_OF_FILE;
+        return EOF;
+
+    } else if (is_open_curly(c)) {
+        out_token->ltype = OPEN_CURLY;
+        out_token->u.onechar = c;
+        return EOF;
+
+    } else if (is_close_curly(c)) {
+        out_token->ltype = CLOSE_CURLY;
+        out_token->u.onechar = c;
         return EOF;
 
     } else if (is_numeric(c)) {

@@ -28,12 +28,24 @@ struct Token {
 
 #define NAME_SIZE 256
 
+int is_eof(int c) {
+    return c == EOF;
+}
+
 int is_numeric(int c) {
     return '0' <= c && c <= '9';
 }
 
 int is_space(int c) {
     return c == ' ';
+}
+
+int is_slash(int c) {
+    return c == '/';
+}
+
+int is_alpha(int c) {
+    return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z');
 }
 
 int str2int(char *str, int length) {
@@ -50,7 +62,7 @@ int str2int(char *str, int length) {
 int parse_one(int prev_ch, struct Token *out_token) {
     int pos = 0;
     int c;
-    char buf[256];
+    char buf[NAME_SIZE];
 
     if (prev_ch == EOF) {
         c = cl_getc();
@@ -58,7 +70,7 @@ int parse_one(int prev_ch, struct Token *out_token) {
         c = prev_ch;
     }
 
-    if (c == EOF) {
+    if (is_eof(c)) {
         out_token->ltype = END_OF_FILE;
         return EOF;
 
@@ -66,6 +78,7 @@ int parse_one(int prev_ch, struct Token *out_token) {
         do {
             buf[pos++] = c;
         } while (c = cl_getc(), is_numeric(c));
+
         out_token->ltype = NUMBER;
         out_token->u.number = str2int(buf, pos);
         return c;
@@ -74,6 +87,30 @@ int parse_one(int prev_ch, struct Token *out_token) {
         while (c = cl_getc(), is_space(c));
         out_token->ltype = SPACE;
         return c;
+
+    } else if (is_alpha(c)) {
+        do {
+            buf[pos++] = c;
+        } while (c = cl_getc(), (!is_space(c) && !is_eof(c)));
+        buf[pos] = '\0';
+
+        out_token->ltype = EXECUTABLE_NAME;
+        out_token->u.name = (char *)malloc(sizeof(char) * pos);
+        strncpy(buf, out_token->u.name, NAME_SIZE);
+        return c;
+
+    } else if (is_slash(c)) {
+        pos++;
+        while (c = cl_getc(), (!is_space(c) && !is_eof(c))) {
+            buf[pos++] = c;
+        }
+        buf[pos] = '\0';
+
+        out_token->ltype = LITERAL_NAME;
+        out_token->u.name = (char *)malloc(sizeof(char) * pos);
+        strncpy(buf, out_token->u.name, NAME_SIZE);
+        return c;
+
     }
 
     out_token->ltype = UNKNOWN;

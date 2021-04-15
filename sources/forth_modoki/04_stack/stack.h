@@ -10,7 +10,7 @@ typedef struct Stack {
 } Stack;
 
 #define STACK_FULL -1
-#define STACK_EMPTY -1
+#define STACK_EMPTY -2
 
 // スタックを初期化して返す。
 Stack* stack_initialize();

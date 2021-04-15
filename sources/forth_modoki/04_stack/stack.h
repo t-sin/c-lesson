@@ -1,14 +1,12 @@
 #include <stdlib.h>
 #include "token.h"
 
-#define STACK_SIZE 1024
-
 typedef struct StackEntry {
     Token *token;
 } StackEntry;
 
 typedef struct Stack {
-    StackEntry array[STACK_SIZE];
+    StackEntry *array;
     int top;
 } Stack;
 

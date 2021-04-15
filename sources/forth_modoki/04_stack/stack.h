@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include "token.h"
 
 typedef struct StackEntry {
@@ -13,21 +12,13 @@ typedef struct Stack {
 #define STACK_FULL -1
 #define STACK_EMPTY -1
 
-// スタックを初期化して返す。freeは必要ないけど適宜。
-Stack* stack_initialize() {
-    // スタックつくる
-    // スタック返す
-    return NULL;
-}
+// スタックを初期化して返す。
+Stack* stack_initialize();
 
 // スタックに要素を追加する。
 // 返り値はtopの位置。スタックがいっぱいの状態でプッシュするとSTACK_FULLが返る。
-int stack_push(Stack *stack) {
-    return 0;
-}
+int stack_push(Stack *stack, StackEntry *entry);
 
 // スタックから要素を取り出す。
 // 返り値はスタックトップの位置。スタックが空の状態でポップするとSTACK_EMPTYが返る。
-int stack_pop(Stack *stack, StackEntry *out_entry) {
-    return 0;
-}
+int stack_pop(Stack *stack, StackEntry *out_entry);

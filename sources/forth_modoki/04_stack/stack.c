@@ -60,13 +60,13 @@ void test_push_one_integer() {
     assert(stack->array[0]->u.number == expected_value);
 }
 
-void test() {
+void test_all() {
     test_pop_empty_stack();
     test_push_one_integer();
 }
 
 int main() {
-    test();
+    test_all();
 
     return 0;
 }

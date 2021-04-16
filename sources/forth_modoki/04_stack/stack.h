@@ -1,11 +1,7 @@
 #include "token.h"
 
-typedef struct StackEntry {
-    Token *token;
-} StackEntry;
-
 typedef struct Stack {
-    StackEntry *array;
+    Token **array;
     int top;
 } Stack;
 
@@ -17,8 +13,8 @@ Stack* stack_initialize();
 
 // スタックに要素を追加する。
 // 返り値はtopの位置。スタックがいっぱいの状態でプッシュするとSTACK_FULLが返る。
-int stack_push(Stack *stack, StackEntry *entry);
+int stack_push(Stack *stack, Token *token);
 
 // スタックから要素を取り出す。
 // 返り値はスタックトップの位置。スタックが空の状態でポップするとSTACK_EMPTYが返る。
-int stack_pop(Stack *stack, StackEntry *out_entry);
+int stack_pop(Stack *stack, Token *out_token);

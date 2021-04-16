@@ -6,17 +6,16 @@
 
 Stack* stack_initialize() {
     Stack *stack = (Stack *)malloc(sizeof(Stack));
-    stack->array = (StackEntry *)malloc(sizeof(StackEntry) * STACK_SIZE);
+    stack->array = (Token **)malloc(sizeof(Token *) * STACK_SIZE);
     stack->top = 0;
 
     return stack;
 }
 
-int stack_push(Stack *stack, StackEntry *entry) {
-    return 0;
+int stack_push(Stack *stack, Token *token) {
 }
 
-int stack_pop(Stack *stack, StackEntry *out_entry) {
+int stack_pop(Stack *stack, Token *out_token) {
     if (stack->top == 0) {
         return STACK_EMPTY;
     }
@@ -25,9 +24,18 @@ int stack_pop(Stack *stack, StackEntry *out_entry) {
 }
 
 void test_pop_empty_stack() {
-    int expected_top = STACK_EMPTY;
-    int actual_top;
-    StackEntry entry;
+    int expected_return = STACK_EMPTY;
+    int expected_top = 0;
+    int actual_return;
+    Token token;
+
+    Stack *stack = stack_initialize();
+    actual_return = stack_pop(stack, &token);
+
+    assert(actual_return == expected_return);
+    assert(stack->top == expected_top);
+}
+
 
     Stack *stack = stack_initialize();
     actual_top = stack_pop(stack, &entry);

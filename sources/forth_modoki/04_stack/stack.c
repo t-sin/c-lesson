@@ -13,6 +13,13 @@ Stack* stack_initialize() {
 }
 
 int stack_push(Stack *stack, Token *token) {
+    if (stack->top < STACK_SIZE) {
+        stack->array[stack->top] = token;
+        stack->top++;
+        return stack->top;
+    }
+
+    return STACK_FULL;
 }
 
 int stack_pop(Stack *stack, Token *out_token) {
@@ -36,15 +43,26 @@ void test_pop_empty_stack() {
     assert(stack->top == expected_top);
 }
 
+void test_push_one_integer() {
+    int expected_return = 1;
+    int expected_top = 1;
+    int expected_ltype = NUMBER;
+    int expected_value = 42;
+    int actual_return;
 
+    Token token = {NUMBER, {42}};
     Stack *stack = stack_initialize();
-    actual_top = stack_pop(stack, &entry);
+    actual_return = stack_push(stack, &token);
 
-    assert(expected_top == actual_top);
+    assert(actual_return == expected_return);
+    assert(stack->top == expected_top);
+    assert(stack->array[0]->ltype == expected_ltype);
+    assert(stack->array[0]->u.number == expected_value);
 }
 
 void test() {
     test_pop_empty_stack();
+    test_push_one_integer();
 }
 
 int main() {

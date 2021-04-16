@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include "stack.h"
 
@@ -22,19 +23,30 @@ int stack_push(Stack *stack, Token *token) {
     return STACK_FULL;
 }
 
-int stack_pop(Stack *stack, Token *out_token) {
+int stack_pop(Stack *stack, Token **out_token) {
     if (stack->top == 0) {
         return STACK_EMPTY;
     }
 
-    return 0;
+    stack->top--;
+    *out_token = stack->array[stack->top];
+
+    return stack->top;
+}
+
+void test_initialize_stack() {
+    int expected_top = 0;
+
+    Stack *stack = stack_initialize();
+
+    assert(stack->top == expected_top);
 }
 
 void test_pop_empty_stack() {
     int expected_return = STACK_EMPTY;
     int expected_top = 0;
     int actual_return;
-    Token token;
+    Token* token;
 
     Stack *stack = stack_initialize();
     actual_return = stack_pop(stack, &token);
@@ -55,35 +67,49 @@ void test_push_one_integer() {
 
     actual_return = stack_push(stack, &token);
 
+    // 返り値とトップの確認
     assert(actual_return == expected_return);
     assert(stack->top == expected_top);
+    // 値の確認
     assert(stack->array[0]->ltype == expected_ltype);
     assert(stack->array[0]->u.number == expected_value);
 }
 
 void test_pop_one_integer() {
-    int expected_return = 0;
-    int expected_top = 0;
+    int expected_return;
+    int expected_top;
     int expected_ltype = NUMBER;
     int expected_value = 42;
     int actual_return;
 
     Token token = {NUMBER, {42}};
-    Token out_token;
+    Token *out_token;
     Stack *stack = stack_initialize();
 
-    stack_push(stack, &token);
-    actual_return = stack_pop(stack, &out_token);
+    actual_return = stack_push(stack, &token);
 
+    // 返り値とトップの確認
+    expected_return = 1;
+    expected_top = 1;
     assert(actual_return == expected_return);
     assert(stack->top == expected_top);
-    assert(out_token.ltype == expected_ltype);
-    assert(out_token.u.number == expected_value);
+
+    actual_return = stack_pop(stack, &out_token);
+
+    // 返り値とトップの確認
+    expected_return = 0;
+    expected_top = 0;
+    assert(actual_return == expected_return);
+    assert(stack->top == expected_top);
+    // 値の確認
+    assert(out_token->ltype == expected_ltype);
+    assert(out_token->u.number == expected_value);
 }
 
 void test_all() {
     test_pop_empty_stack();
     test_push_one_integer();
+    test_pop_one_integer();
 }
 
 int main() {

@@ -17,4 +17,4 @@ int stack_push(Stack *stack, Token *token);
 
 // スタックから要素を取り出す。
 // 返り値はスタックトップの位置。スタックが空の状態でポップするとSTACK_EMPTYが返る。
-int stack_pop(Stack *stack, Token *out_token);
+int stack_pop(Stack *stack, Token **out_token);

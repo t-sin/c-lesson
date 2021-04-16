@@ -106,10 +106,31 @@ void test_pop_one_integer() {
     assert(out_token->u.number == expected_value);
 }
 
+void test_push_to_full_stack() {
+    int expected_return = STACK_FULL;
+    int expected_top = STACK_SIZE;
+    int actual_return;
+
+    Stack *stack = stack_initialize();
+    Token token = {NUMBER, {42}};
+
+    for (int i = 0; i <= STACK_SIZE - 1; i++) {
+        actual_return = stack_push(stack, &token);
+    }
+    assert(actual_return == STACK_SIZE);
+    assert(stack->top == STACK_SIZE);
+
+    // スタックがすべて埋まった状態で要素をプッシュ
+    actual_return = stack_push(stack, &token);
+    assert(actual_return == expected_return);
+    assert(stack->top == expected_top);
+}
+
 void test_all() {
     test_pop_empty_stack();
     test_push_one_integer();
     test_pop_one_integer();
+    test_push_to_full_stack();
 }
 
 int main() {

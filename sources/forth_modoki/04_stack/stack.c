@@ -52,12 +52,33 @@ void test_push_one_integer() {
 
     Token token = {NUMBER, {42}};
     Stack *stack = stack_initialize();
+
     actual_return = stack_push(stack, &token);
 
     assert(actual_return == expected_return);
     assert(stack->top == expected_top);
     assert(stack->array[0]->ltype == expected_ltype);
     assert(stack->array[0]->u.number == expected_value);
+}
+
+void test_pop_one_integer() {
+    int expected_return = 0;
+    int expected_top = 0;
+    int expected_ltype = NUMBER;
+    int expected_value = 42;
+    int actual_return;
+
+    Token token = {NUMBER, {42}};
+    Token out_token;
+    Stack *stack = stack_initialize();
+
+    stack_push(stack, &token);
+    actual_return = stack_pop(stack, &out_token);
+
+    assert(actual_return == expected_return);
+    assert(stack->top == expected_top);
+    assert(out_token.ltype == expected_ltype);
+    assert(out_token.u.number == expected_value);
 }
 
 void test_all() {

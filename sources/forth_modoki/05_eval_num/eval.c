@@ -22,6 +22,20 @@ void eval() {
         case NUMBER:
             stack_push(stack, &token);
             break;
+        case EXECUTABLE_NAME:
+            if (streq(token.u.name, "add")) {
+                Token a, b, result;
+
+                stack_pop(stack, &a);
+                stack_pop(stack, &b);
+
+                result.ltype = NUMBER;
+                result.u.number = a.u.number + b.u.number;
+
+                stack_push(stack, &result);
+            }
+            break;
+
         case SPACE:
             break;
         default:

@@ -30,13 +30,13 @@ static void test_eval_num_one() {
 
     eval();
 
-    Token *token;
+    Token token;
     int stack_ret = stack_pop(stack, &token);
 
     assert(stack_ret == 0);
-    assert(token->ltype == NUMBER);
+    assert(token.ltype == NUMBER);
 
-    int actual = token->u.number;
+    int actual = token.u.number;
 
     assert(expect == actual);
 }
@@ -50,20 +50,20 @@ static void test_eval_num_two() {
 
     eval();
 
-    Token *token1;
-    Token *token2;
+    Token token1;
+    Token token2;
     int stack_ret;
 
     stack_ret = stack_pop(stack, &token1);
     assert(stack_ret == 1);
-    assert(token1->ltype == NUMBER);
+    assert(token1.ltype == NUMBER);
 
     stack_ret = stack_pop(stack, &token2);
     assert(stack_ret == 1);
-    assert(token2->ltype == NUMBER);
+    assert(token2.ltype == NUMBER);
 
-    int actual1 = token1->u.number;
-    int actual2 = token2->u.number;
+    int actual1 = token1.u.number;
+    int actual2 = token2.u.number;
 
     assert(expect1 == actual1);
     assert(expect2 == actual2);
@@ -78,14 +78,14 @@ static void test_eval_num_add() {
 
     eval();
 
-    Token *token;
+    Token token;
     int stack_ret;
 
     stack_ret = stack_pop(stack, &token);
     assert(stack_ret == 1);
-    assert(token->ltype == NUMBER);
+    assert(token.ltype == NUMBER);
 
-    int actual = token->u.number;
+    int actual = token.u.number;
     assert(expect == actual);
 }
 

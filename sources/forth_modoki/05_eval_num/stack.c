@@ -6,7 +6,7 @@
 #define STACK_SIZE 1024
 
 struct Stack {
-    Token *array[STACK_SIZE];
+    Token array[STACK_SIZE];
     int top;
 };
 
@@ -20,7 +20,8 @@ Stack* stack_initialize() {
 
 int stack_push(Stack *stack, Token *token) {
     if (stack->top < STACK_SIZE) {
-        stack->array[stack->top] = token;
+
+        stack->array[stack->top].u = token->u;
         stack->top++;
         return stack->top;
     }
@@ -28,13 +29,14 @@ int stack_push(Stack *stack, Token *token) {
     return STACK_FULL;
 }
 
-int stack_pop(Stack *stack, Token **out_token) {
+int stack_pop(Stack *stack, Token *out_token) {
     if (stack->top == 0) {
         return STACK_EMPTY;
     }
 
     stack->top--;
-    *out_token = stack->array[stack->top];
+    out_token->ltype = stack->array[stack->top].ltype;
+    out_token->u = stack->array[stack->top].u;
 
     return stack->top;
 }
@@ -51,7 +53,7 @@ void test_pop_empty_stack() {
     int expected_return = STACK_EMPTY;
     int expected_top = 0;
     int actual_return;
-    Token* token;
+    Token token;
 
     Stack *stack = stack_initialize();
     actual_return = stack_pop(stack, &token);
@@ -76,8 +78,8 @@ void test_push_one_integer() {
     assert(actual_return == expected_return);
     assert(stack->top == expected_top);
     // 値の確認
-    assert(stack->array[0]->ltype == expected_ltype);
-    assert(stack->array[0]->u.number == expected_value);
+    assert(stack->array[0].ltype == expected_ltype);
+    assert(stack->array[0].u.number == expected_value);
 }
 
 void test_pop_one_integer() {
@@ -88,7 +90,7 @@ void test_pop_one_integer() {
     int actual_return;
 
     Token token = {NUMBER, {42}};
-    Token *out_token;
+    Token out_token;
     Stack *stack = stack_initialize();
 
     actual_return = stack_push(stack, &token);
@@ -107,8 +109,8 @@ void test_pop_one_integer() {
     assert(actual_return == expected_return);
     assert(stack->top == expected_top);
     // 値の確認
-    assert(out_token->ltype == expected_ltype);
-    assert(out_token->u.number == expected_value);
+    assert(out_token.ltype == expected_ltype);
+    assert(out_token.u.number == expected_value);
 }
 
 void test_push_to_full_stack() {

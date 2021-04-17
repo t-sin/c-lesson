@@ -60,7 +60,7 @@ static void test_eval_num_two() {
     assert(token1.ltype == NUMBER);
 
     stack_ret = stack_pop(stack, &token2);
-    assert(stack_ret == 1);
+    assert(stack_ret == 0);
     assert(token2.ltype == NUMBER);
 
     int actual1 = token1.u.number;

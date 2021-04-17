@@ -10,7 +10,6 @@ static Stack *stack;
 void eval() {
     Token token;
     int ch = '\0';
-    stack = stack_initialize();
 
     while (ch = parse_one(ch, &token) != EOF) {
         switch (token.ltype) {
@@ -27,6 +26,7 @@ static void test_eval_num_one() {
     int expect = 123;
 
     cl_getc_set_src(input);
+    stack = stack_initialize();
 
     eval();
 
@@ -47,6 +47,7 @@ static void test_eval_num_two() {
     int expect2 = 123;
 
     cl_getc_set_src(input);
+    stack = stack_initialize();
 
     eval();
 
@@ -75,6 +76,7 @@ static void test_eval_num_add() {
     int expect = 3;
 
     cl_getc_set_src(input);
+    stack = stack_initialize();
 
     eval();
 

@@ -97,7 +97,6 @@ int parse_one(int prev_ch, Token *out_token) {
         return c;
 
     } else if (is_slash(c)) {
-        pos++;
         while (c = cl_getc(), (!is_space(c) && !is_eof(c))) {
             buf[pos++] = c;
         }

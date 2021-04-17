@@ -3,17 +3,30 @@
 #include "stack.h"
 
 #include <assert.h>
+#include <stdio.h>
 
 static Stack *stack;
 
-void eval() {}
+void eval() {
+    Token token;
+    int ch = '\0';
+    stack = stack_initialize();
+
+    while (ch = parse_one(ch, &token) != EOF) {
+        switch (token.ltype) {
+        case NUMBER:
+            // push token to stack but malloc() めんどいのでスタックの型かえる
+        default:
+            printf("unknown token type: %d\n", token.ltype);
+        }
+    }
+}
 
 static void test_eval_num_one() {
     char *input = "123";
     int expect = 123;
 
     cl_getc_set_src(input);
-    stack = stack_initialize();
 
     eval();
 
@@ -34,7 +47,6 @@ static void test_eval_num_two() {
     int expect2 = 123;
 
     cl_getc_set_src(input);
-    stack = stack_initialize();
 
     eval();
 

@@ -93,7 +93,7 @@ int parse_one(int prev_ch, Token *out_token) {
 
         out_token->ltype = EXECUTABLE_NAME;
         out_token->u.name = (char *)malloc(sizeof(char) * NAME_SIZE);
-        strncpy(buf, out_token->u.name, NAME_SIZE);
+        strncpy(out_token->u.name, buf, NAME_SIZE);
         return c;
 
     } else if (is_slash(c)) {
@@ -105,7 +105,7 @@ int parse_one(int prev_ch, Token *out_token) {
 
         out_token->ltype = LITERAL_NAME;
         out_token->u.name = (char *)malloc(sizeof(char) * NAME_SIZE);
-        strncpy(buf, out_token->u.name, NAME_SIZE);
+        strncpy(out_token->u.name, buf, NAME_SIZE);
         return c;
 
     }

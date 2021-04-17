@@ -1,4 +1,5 @@
 #include "clesson.h"
+#include <assert.h>
 
 void eval() {}
 

@@ -1,4 +1,7 @@
 #include "clesson.h"
+#include "parser.h"
+#include "stack.h"
+
 #include <assert.h>
 
 void eval() {}

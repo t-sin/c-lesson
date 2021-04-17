@@ -1,3 +1,6 @@
+#ifndef forth_modoki_parser
+#define forth_modoki_parser
+
 typedef enum LexicalType {
     NUMBER,
     SPACE,
@@ -19,3 +22,5 @@ typedef struct Token {
 } Token;
 
 int parse_one(int prev_ch, Token *out_token);
+
+#endif

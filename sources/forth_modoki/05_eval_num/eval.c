@@ -112,6 +112,22 @@ static void test_eval_num_add() {
 
     int actual = token.u.number;
     assert(expect == actual);
+}
+
+static void test_eval_complex_add() {
+    char *input = "1 2 3 add add 4 5 6 7 8 9 add add add add add add";
+    int expect = 45;
+
+    cl_getc_set_src(input);
+    stack = stack_initialize();
+
+    eval();
+
+    Token token;
+    int stack_ret;
+
+    stack_ret = stack_pop(stack, &token);
+    assert(stack_ret == 0);
     assert(token.ltype == NUMBER);
 
     int actual = token.u.number;
@@ -123,6 +139,8 @@ int main() {
     test_eval_num_one();
     test_eval_num_two();
     test_eval_num_add();
+
+    test_eval_complex_add();
 
     return 0;
 }

@@ -83,31 +83,34 @@ void test_push_one_integer() {
 }
 
 void test_pop_one_integer() {
-    int expected_return;
-    int expected_top;
+    Token input1 = {NUMBER, {42}};
+    Token input2 = {NUMBER, {420}};
+
     int expected_ltype = NUMBER;
     int expected_value = 42;
+
+    int expected_return_push = 1;
+    int expected_top_push = 1;
+
+    int expected_return_pop = 0;
+    int expected_top_pop = 0;
+
     int actual_return;
 
-    Token token = {NUMBER, {42}};
     Token out_token;
     Stack *stack = stack_initialize();
 
-    actual_return = stack_push(stack, &token);
+    actual_return = stack_push(stack, &input1);
 
     // 返り値とトップの確認
-    expected_return = 1;
-    expected_top = 1;
-    assert(actual_return == expected_return);
-    assert(stack->top == expected_top);
+    assert(actual_return == expected_return_push);
+    assert(stack->top == expected_top_push);
 
     actual_return = stack_pop(stack, &out_token);
 
     // 返り値とトップの確認
-    expected_return = 0;
-    expected_top = 0;
-    assert(actual_return == expected_return);
-    assert(stack->top == expected_top);
+    assert(actual_return == expected_return_pop);
+    assert(stack->top == expected_top_pop);
     // 値の確認
     assert(out_token.ltype == expected_ltype);
     assert(out_token.u.number == expected_value);

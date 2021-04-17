@@ -93,7 +93,11 @@ static void test_eval_num_add() {
     int stack_ret;
 
     stack_ret = stack_pop(stack, &token);
-    assert(stack_ret == 1);
+    assert(stack_ret == 0);
+    assert(token.ltype == NUMBER);
+
+    int actual = token.u.number;
+    assert(expect == actual);
     assert(token.ltype == NUMBER);
 
     int actual = token.u.number;

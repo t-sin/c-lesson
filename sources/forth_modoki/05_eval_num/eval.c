@@ -9,16 +9,20 @@ static Stack *stack;
 
 void eval() {
     Token token;
-    int ch = '\0';
+    int ch = EOF;
 
-    while (ch = parse_one(ch, &token) != EOF) {
+    do {
+        ch = parse_one(ch, &token);
         switch (token.ltype) {
         case NUMBER:
-            // push token to stack but malloc() めんどいのでスタックの型かえる
+            stack_push(stack, &token);
+            break;
+        case SPACE:
+            break;
         default:
             printf("unknown token type: %d\n", token.ltype);
         }
-    }
+    } while (ch != EOF);
 }
 
 static void test_eval_num_one() {

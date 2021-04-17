@@ -92,7 +92,7 @@ int parse_one(int prev_ch, Token *out_token) {
         buf[pos] = '\0';
 
         out_token->ltype = EXECUTABLE_NAME;
-        out_token->u.name = (char *)malloc(sizeof(char) * pos);
+        out_token->u.name = (char *)malloc(sizeof(char) * NAME_SIZE);
         strncpy(buf, out_token->u.name, NAME_SIZE);
         return c;
 
@@ -104,7 +104,7 @@ int parse_one(int prev_ch, Token *out_token) {
         buf[pos] = '\0';
 
         out_token->ltype = LITERAL_NAME;
-        out_token->u.name = (char *)malloc(sizeof(char) * pos);
+        out_token->u.name = (char *)malloc(sizeof(char) * NAME_SIZE);
         strncpy(buf, out_token->u.name, NAME_SIZE);
         return c;
 

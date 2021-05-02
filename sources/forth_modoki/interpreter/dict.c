@@ -54,8 +54,9 @@ int dict_get(char *key, Token *out_token) {
 }
 
 void dict_print_all() {
+    printf("[dict] dict_pos = %d\n", dict_pos);
     for (int i = 0; i < dict_pos; i++) {
-        printf("%s: ", dict_array[i].key);
+        printf("[dict] %s: ", dict_array[i].key);
         print_token(&dict_array[i].value);
     }
 }

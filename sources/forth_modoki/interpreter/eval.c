@@ -1,4 +1,6 @@
 #include "clesson.h"
+#include "util.h"
+
 #include "parser.h"
 #include "stack.h"
 
@@ -7,10 +9,6 @@
 #include <string.h>
 
 static Stack *stack;
-
-int streq(char *s1, char *s2) {
-    return strcmp(s1, s2) == 0;
-}
 
 void eval() {
     Token token;

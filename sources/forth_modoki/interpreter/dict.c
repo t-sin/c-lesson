@@ -15,7 +15,7 @@ typedef struct DictEntry {
 #define DICT_SIZE 1024
 static DictEntry dict_array[DICT_SIZE];
 
-void reset_dict() {
+void dict_reset() {
     dict_pos = 0;
 }
 
@@ -65,7 +65,7 @@ static void test_dict_put_one_integer() {
     char *key = "test";
     int expected_dict_pos = 1;
 
-    reset_dict();
+    dict_reset();
     dict_put(key, &input);
 
     assert(dict_pos == expected_dict_pos);
@@ -78,7 +78,7 @@ static void test_dict_put_one_literal_name() {
     char *key = "aaa";
     int expected_dict_pos = 1;
 
-    reset_dict();
+    dict_reset();
     dict_put(key, &input);
 
     assert(dict_pos == expected_dict_pos);
@@ -92,7 +92,7 @@ static void test_dict_put_two_different_names() {
     int expected_dict_pos1 = 1;
     int expected_dict_pos2 = 2;
 
-    reset_dict();
+    dict_reset();
 
     dict_put(input1.u.name, &input1);
     assert(dict_pos == expected_dict_pos1);
@@ -111,7 +111,7 @@ static void test_dict_put_two_same_names() {
     int expected_dict_pos1 = 1;
     int expected_dict_pos2 = 1;
 
-    reset_dict();
+    dict_reset();
 
     dict_put(input1.u.name, &input1);
     assert(dict_pos == expected_dict_pos1);
@@ -132,7 +132,7 @@ static void test_dict_get_one_integer() {
     char *key = "test";
     Token output;
 
-    reset_dict();
+    dict_reset();
     dict_put(key, &input);
 
     int ret = dict_get(key, &output);
@@ -149,7 +149,7 @@ static void test_dict_get_one_literal_name() {
 
     Token output;
 
-    reset_dict();
+    dict_reset();
     dict_put(input.u.name, &input);
 
     int ret = dict_get(input.u.name, &output);

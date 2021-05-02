@@ -1,5 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "parser.h"
 #include "dict.h"
@@ -19,8 +21,9 @@ void dict_reset() {
     dict_pos = 0;
 }
 
+#define NOT_FOUND -1
 void dict_put(char *key, Token *token) {
-    int entry_pos = -1;
+    int entry_pos = NOT_FOUND;
     for (int pos = 0; pos < dict_pos; pos++) {
         if (streq(dict_array[pos].key, key)) {
             entry_pos = pos;
@@ -28,24 +31,23 @@ void dict_put(char *key, Token *token) {
         }
     }
 
-    if (entry_pos != -1) {
-        dict_array[entry_pos].key = key;
-        dict_array[entry_pos].value.ltype = token->ltype;
-        dict_array[entry_pos].value.u = token->u;
-
-    } else {
-        dict_array[dict_pos].key = key;
-        dict_array[dict_pos].value.ltype = token->ltype;
-        dict_array[dict_pos].value.u = token->u;
+    int pos;
+    if (entry_pos == NOT_FOUND) {
+        pos = dict_pos;
         dict_pos++;
+     } else {
+        pos = entry_pos;
     }
+
+    dict_array[pos].key = (char *)malloc(sizeof(char) * strlen(key));
+    strcpy(dict_array[pos].key, key);
+    token_copy(&dict_array[pos].value, token);
 }
 
 int dict_get(char *key, Token *out_token) {
-    for (int i = 0; i < DICT_SIZE; i++) {
+    for (int i = 0; i < dict_pos; i++) {
         if (streq(dict_array[i].key, key)) {
-            out_token->ltype = dict_array[i].value.ltype;
-            out_token->u = dict_array[i].value.u;
+            token_copy(out_token, &dict_array[i].value);
             return DICT_FOUND;
         }
     }

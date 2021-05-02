@@ -39,11 +39,12 @@ void eval() {
             } else if (streq(token.u.name, "def")) {
                 Token name, val;
 
-                stack_pop(stack, &name);
                 stack_pop(stack, &val);
+                stack_pop(stack, &name);
+
+                assert(name.ltype == LITERAL_NAME);
 
                 dict_put(name.u.name, &val);
-                dict_print_all();
 
             } else if (dict_get(token.u.name, &tmp) == DICT_FOUND) {
                 stack_push(stack, &tmp);

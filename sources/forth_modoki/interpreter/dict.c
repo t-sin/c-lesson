@@ -39,6 +39,7 @@ void dict_put(char *key, Token *token) {
         pos = entry_pos;
     }
 
+    //fprintf(stderr, "%ld\n", strlen(key));
     dict_array[pos].key = (char *)malloc(sizeof(char) * strlen(key));
     strcpy(dict_array[pos].key, key);
     token_copy(&dict_array[pos].value, token);

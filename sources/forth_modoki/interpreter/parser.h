@@ -22,5 +22,6 @@ typedef struct Token {
 } Token;
 
 int parse_one(int prev_ch, Token *out_token);
+void print_token(Token *token);
 
 #endif

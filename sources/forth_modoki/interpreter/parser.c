@@ -7,6 +7,35 @@
 
 #define NAME_SIZE 256
 
+void print_token(Token *token) {
+    if(token->ltype != UNKNOWN) {
+        switch(token->ltype) {
+        case NUMBER:
+            printf("num: %d\n", token->u.number);
+            break;
+        case SPACE:
+            printf("space!\n");
+            break;
+        case OPEN_CURLY:
+            printf("Open curly brace '%c'\n", token->u.onechar);
+            break;
+        case CLOSE_CURLY:
+            printf("Close curly brace '%c'\n", token->u.onechar);
+            break;
+        case EXECUTABLE_NAME:
+            printf("EXECUTABLE_NAME: %s\n", token->u.name);
+            break;
+        case LITERAL_NAME:
+            printf("LITERAL_NAME: %s\n", token->u.name);
+            break;
+
+        default:
+            printf("Unknown type %d\n", token->ltype);
+            break;
+        }
+    }
+}
+
 int is_eof(int c) {
     return c == EOF;
 }
@@ -123,32 +152,7 @@ void parser_print_all() {
 
     do {
         ch = parse_one(ch, &token);
-        if(token.ltype != UNKNOWN) {
-            switch(token.ltype) {
-                case NUMBER:
-                    printf("num: %d\n", token.u.number);
-                    break;
-                case SPACE:
-                    printf("space!\n");
-                    break;
-                case OPEN_CURLY:
-                    printf("Open curly brace '%c'\n", token.u.onechar);
-                    break;
-                case CLOSE_CURLY:
-                    printf("Close curly brace '%c'\n", token.u.onechar);
-                    break;
-                case EXECUTABLE_NAME:
-                    printf("EXECUTABLE_NAME: %s\n", token.u.name);
-                    break;
-                case LITERAL_NAME:
-                    printf("LITERAL_NAME: %s\n", token.u.name);
-                    break;
-
-                default:
-                    printf("Unknown type %d\n", token.ltype);
-                    break;
-            }
-        }
+        print_token(&token);
     }while(ch != EOF);
 }
 

@@ -7,6 +7,25 @@
 
 #define NAME_SIZE 256
 
+void token_copy(Token *dest, Token *src) {
+    dest->ltype = src->ltype;
+
+    switch (src->ltype) {
+    case NUMBER:
+        dest->u.number = src->u.number;
+        break;
+
+    case EXECUTABLE_NAME:
+    case LITERAL_NAME:
+        dest->u.name = src->u.name;
+        break;
+
+    default:
+        dest->u.onechar = src->u.onechar;
+        break;
+    }
+}
+
 void print_token(Token *token) {
     if(token->ltype != UNKNOWN) {
         switch(token->ltype) {

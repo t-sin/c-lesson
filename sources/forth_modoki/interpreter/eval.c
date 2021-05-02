@@ -3,6 +3,7 @@
 
 #include "parser.h"
 #include "stack.h"
+#include "dict.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -16,6 +17,7 @@ void eval() {
 
     do {
         ch = parse_one(ch, &token);
+        Token tmp;
 
         switch (token.ltype) {
         case NUMBER:
@@ -33,7 +35,20 @@ void eval() {
                 result.u.number = a.u.number + b.u.number;
 
                 stack_push(stack, &result);
+
+            } else if (streq(token.u.name, "def")) {
+                Token name, val;
+
+                stack_pop(stack, &name);
+                stack_pop(stack, &val);
+
+                dict_put(name.u.name, &val);
+                dict_print_all();
+
+            } else if (dict_get(token.u.name, &tmp) == DICT_FOUND) {
+                stack_push(stack, &tmp);
             }
+
             break;
 
         case LITERAL_NAME:
@@ -158,13 +173,25 @@ static void test_eval_literal_name() {
     assert(streq(token.u.name, expect_name));
 }
 
-int main() {
+static void test_all() {
     test_eval_num_one();
     test_eval_num_two();
     test_eval_num_add();
     test_eval_complex_add();
 
     test_eval_literal_name();
+}
+
+int main() {
+    //test_all();
+
+    cl_getc_set_src("/abc 42 def abc abc add");
+    stack = stack_initialize();
+    dict_reset();
+    eval();
+    Token token;
+    stack_pop(stack, &token);
+    print_token(&token);
 
     return 0;
 }

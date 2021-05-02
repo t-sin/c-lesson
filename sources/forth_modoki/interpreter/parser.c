@@ -260,7 +260,7 @@ static void unit_tests() {
     test_parse_one_close_curly();
 }
 
-#if 0
+#ifdef PARSER_TEST
 int main() {
     unit_tests();
 

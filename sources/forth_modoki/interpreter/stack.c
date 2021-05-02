@@ -160,7 +160,7 @@ void test_all() {
     test_push_to_full_stack();
 }
 
-#if 0
+#ifdef STACK_TEST
 int main() {
     test_all();
 

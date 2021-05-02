@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "stack.h"
 
 #define STACK_SIZE 1024
@@ -21,6 +22,7 @@ Stack* stack_initialize() {
 int stack_push(Stack *stack, Token *token) {
     if (stack->top < STACK_SIZE) {
 
+        stack->array[stack->top].ltype = token->ltype;
         stack->array[stack->top].u = token->u;
         stack->top++;
         return stack->top;
@@ -82,6 +84,20 @@ void test_push_one_integer() {
     assert(stack->array[0].u.number == expected_value);
 }
 
+void test_push_one_literal_name() {
+    Token input = {LITERAL_NAME, { .name =  "foo" }};
+    int expected_top = 0;
+    int expected_ltype = LITERAL_NAME;
+    char *expected_name = "foo";
+
+    Stack *stack = stack_initialize();
+    int actual_top = stack_push(stack, &input);
+
+    assert(stack->top == expected_top);
+    assert(stack->array[0].ltype == expected_ltype);
+    assert(strcmp(stack->array[0].u.name, expected_name) == 0);
+}
+
 void test_pop_one_integer() {
     Token input1 = {NUMBER, {42}};
     Token input2 = {NUMBER, {420}};
@@ -139,6 +155,7 @@ void test_push_to_full_stack() {
 void test_all() {
     test_pop_empty_stack();
     test_push_one_integer();
+    test_push_one_literal_name();
     test_pop_one_integer();
     test_push_to_full_stack();
 }

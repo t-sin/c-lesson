@@ -18,10 +18,12 @@ void eval() {
 
     do {
         ch = parse_one(ch, &token);
+
         switch (token.ltype) {
         case NUMBER:
             stack_push(stack, &token);
             break;
+
         case EXECUTABLE_NAME:
             if (streq(token.u.name, "add")) {
                 Token a, b, result;
@@ -42,6 +44,7 @@ void eval() {
 
         case SPACE:
             break;
+
         default:
             printf("unknown token type: %d\n", token.ltype);
         }

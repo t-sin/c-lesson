@@ -36,6 +36,10 @@ void eval() {
             }
             break;
 
+        case LITERAL_NAME:
+            stack_push(stack, &token);
+            break;
+
         case SPACE:
             break;
         default:
@@ -134,13 +138,32 @@ static void test_eval_complex_add() {
     assert(expect == actual);
 }
 
+static void test_eval_literal_name() {
+    char *input = "/foo";
+    char *expect_name = "foo";
+    char expect_type = LITERAL_NAME;
+
+    cl_getc_set_src(input);
+    stack = stack_initialize();
+
+    eval();
+
+    Token token;
+    int stack_ret;
+
+    stack_ret = stack_pop(stack, &token);
+    assert(stack_ret == 0);
+    assert(token.ltype == expect_type);
+    assert(streq(token.u.name, expect_name));
+}
 
 int main() {
     test_eval_num_one();
     test_eval_num_two();
     test_eval_num_add();
-
     test_eval_complex_add();
+
+    test_eval_literal_name();
 
     return 0;
 }

@@ -18,6 +18,7 @@ int hash(char *str) {
 typedef struct DictEntry {
     char *key;
     Token value;
+    struct DictEntry *next;
 } DictEntry;
 
 typedef struct Dict {
@@ -41,6 +42,12 @@ Dict* dict_init() {
 
 #define NOT_FOUND -1
 void dict_put(char *key, Token *token) {
+    int idx = hash(key);
+    DictEntry *head = dict_array[idx];
+
+    if (head == NULL) {
+    }
+
     int entry_pos = NOT_FOUND;
     for (int pos = 0; pos < dict_pos; pos++) {
         if (streq(dict_array[pos].key, key)) {

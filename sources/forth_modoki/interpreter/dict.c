@@ -7,7 +7,13 @@
 #include "dict.h"
 #include "util.h"
 
-static int dict_pos = 0;
+int hash(char *str) {
+   unsigned int val = 0;
+   while(*str) {
+       val += *str++;
+   }
+   return (int)(val%1024);
+}
 
 typedef struct DictEntry {
     char *key;

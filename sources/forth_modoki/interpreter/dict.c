@@ -20,11 +20,23 @@ typedef struct DictEntry {
     Token value;
 } DictEntry;
 
-#define DICT_SIZE 1024
-static DictEntry dict_array[DICT_SIZE];
+typedef struct Dict {
+    DictEntry **array;
+    size_t length;
+} Dict;
 
-void dict_reset() {
-    dict_pos = 0;
+#define DICT_SIZE 1024
+
+Dict* dict_init() {
+    Dict *dict = (Dict *)malloc(sizeof(Dict));
+
+    size_t size = sizeof(DictEntry*) * DICT_SIZE;
+
+    dict->array = (DictEntry **)malloc(size);
+    memset(dict->array, 0, size);
+    dict->length = DICT_SIZE;
+
+    return dict;
 }
 
 #define NOT_FOUND -1

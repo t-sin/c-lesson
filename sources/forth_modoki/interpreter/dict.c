@@ -163,6 +163,25 @@ static void test_dict_get_one_literal_name() {
     assert(streq(output.u.name, input.u.name));
 }
 
+static void test_dict_get_one_overwritten_integer() {
+    char *key = "key";
+    Token input1 = {NUMBER, {42}};
+    Token input2 = {NUMBER, {420}};
+    Token *expected_token = &input2;
+    int expected_ret = DICT_FOUND;
+
+    Token output;
+
+    dict_reset();
+    dict_put(key, &input1);
+    dict_put(key, &input2);
+
+    int ret = dict_get(key, &output);
+    assert(ret == expected_ret);
+    assert(output.ltype == expected_token->ltype);
+    assert(output.u.number == expected_token->u.number);
+}
+
 #ifdef DICT_TEST
 int main() {
 
@@ -172,6 +191,8 @@ int main() {
     test_dict_put_two_same_names();
     test_dict_get_one_integer();
     test_dict_get_one_literal_name();
+
+    test_dict_get_one_overwritten_integer();
 
     return 0;
 }

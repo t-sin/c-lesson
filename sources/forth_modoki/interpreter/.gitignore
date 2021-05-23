@@ -1,4 +1,5 @@
 parser-test
 stack-test
 dict-test
+eval-test
 fm

@@ -189,9 +189,13 @@ static void test_all() {
     test_eval_literal_name();
 }
 
+#ifdef EVAL_TEST
 int main() {
-    //test_all();
-
+    test_all();
+    return 0;
+}
+#else
+int main() {
     cl_getc_set_src("/abc 42 def abc abc add");
     stack = stack_init();
     dict = dict_init();
@@ -203,3 +207,4 @@ int main() {
 
     return 0;
 }
+#endif

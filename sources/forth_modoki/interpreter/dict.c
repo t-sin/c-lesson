@@ -153,24 +153,6 @@ static void test_dict_put_two_different_names_but_same_hash_values() {
     assert(next->value.u.name == input2.u.name);
 }
 
-static void test_dict_put_two_same_names() {
-    Token input1 = {LITERAL_NAME, { .name = "foo"}};
-    Token input2 = {EXECUTABLE_NAME, { .name = "foo"}};
-
-    Dict *dict = dict_init();
-    int idx = hash(input1.u.name);
-
-    dict_put(dict, input1.u.name, &input1);
-    assert(dict->array[idx] != NULL);
-    assert(dict->array[idx]->value.ltype == input1.ltype);
-    assert(dict->array[idx]->value.u.name == input1.u.name);
-
-    dict_put(dict, input2.u.name, &input2);
-    assert(dict->array[idx] != NULL);
-    assert(dict->array[idx]->value.ltype == input2.ltype);
-    assert(dict->array[idx]->value.u.name == input2.u.name);
-}
-
 static void test_dict_get_one_integer() {
     Token input = {NUMBER, {42}};
     int expected_ret = DICT_FOUND;
@@ -227,7 +209,6 @@ int main() {
     test_dict_put_one_integer();
     test_dict_put_one_literal_name();
     test_dict_put_two_different_names_but_same_hash_values();
-    test_dict_put_two_same_names();
     test_dict_get_one_integer();
     test_dict_get_one_literal_name();
 

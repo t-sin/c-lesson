@@ -194,6 +194,22 @@ static void test_eval_literal_name() {
     assert(streq(token.u.name, expect_name));
 }
 
+static void test_eval_def() {
+    char *input = "/name 42 def name";
+    int expect_type = NUMBER;
+    int expect_value = 42;
+
+    eval_with_init(input);
+
+    Token token;
+    int stack_ret;
+
+    stack_ret = stack_pop(stack, &token);
+    assert(stack_ret == 0);
+    assert(token.ltype == expect_type);
+    assert(token.u.number == expect_value);
+}
+
 static void test_all() {
     test_eval_num_one();
     test_eval_num_two();
@@ -201,6 +217,7 @@ static void test_all() {
     test_eval_complex_add();
 
     test_eval_literal_name();
+    test_eval_def();
 }
 
 #ifdef EVAL_TEST

@@ -12,6 +12,18 @@
 static Stack *stack;
 static Dict *dict;
 
+void add_op() {
+    Token a, b, result;
+
+    stack_pop(stack, &a);
+    stack_pop(stack, &b);
+
+    result.ltype = NUMBER;
+    result.u.number = a.u.number + b.u.number;
+
+    stack_push(stack, &result);
+}
+
 void eval() {
     Token token;
     int ch = EOF;
@@ -27,15 +39,7 @@ void eval() {
 
         case EXECUTABLE_NAME:
             if (streq(token.u.name, "add")) {
-                Token a, b, result;
-
-                stack_pop(stack, &a);
-                stack_pop(stack, &b);
-
-                result.ltype = NUMBER;
-                result.u.number = a.u.number + b.u.number;
-
-                stack_push(stack, &result);
+                add_op();
 
             } else if (streq(token.u.name, "def")) {
                 Token name, val;

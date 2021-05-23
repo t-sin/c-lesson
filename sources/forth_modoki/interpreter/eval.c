@@ -25,9 +25,21 @@ void add_op() {
     stack_push(stack, &result);
 }
 
+void def_op() {
+    Token name, val;
+
+    stack_pop(stack, &val);
+    stack_pop(stack, &name);
+
+    assert(name.ltype == LITERAL_NAME);
+
+    dict_put(dict, name.u.name, &val);
+}
+
 void eval() {
     Token token;
     int ch = EOF;
+    int found;
 
     do {
         ch = parse_one(ch, &token);
@@ -39,32 +51,19 @@ void eval() {
             break;
 
         case EXECUTABLE_NAME:
-            if (streq(token.u.name, "def")) {
-                Token name, val;
+            found = dict_get(dict, token.u.name, &tmp);
 
-                stack_pop(stack, &val);
-                stack_pop(stack, &name);
-
-                assert(name.ltype == LITERAL_NAME);
-
-                dict_put(dict, name.u.name, &val);
-
-            } else {
-                int found = dict_get(dict, token.u.name, &tmp);
-
-                if (found == DICT_FOUND) {
-                    if (tmp.ltype == C_FUNC) {
-                        tmp.u.cfunc();
-                    } else {
-                        // ユーザがdefしたnameなので値をスタックにプッシュ
-                        stack_push(stack, &tmp);
-                    }
+            if (found == DICT_FOUND) {
+                if (tmp.ltype == C_FUNC) {
+                    tmp.u.cfunc();
                 } else {
-                    // ユーザがevalに渡したnameなのでスタックにプッシュ
-                    stack_push(stack, &token);
+                    // ユーザがdefしたnameなので値をスタックにプッシュ
+                    stack_push(stack, &tmp);
                 }
+            } else {
+                // ユーザがevalに渡したnameなのでスタックにプッシュ
+                stack_push(stack, &token);
             }
-
             break;
 
         case LITERAL_NAME:
@@ -80,23 +79,32 @@ void eval() {
     } while (ch != EOF);
 }
 
-void register_primitives() {
+void register_op(char *name, void (*cfunc)()) {
     Token token;
     token.ltype = C_FUNC;
-    token.u.cfunc = add_op;
-    dict_put(dict, "add", &token);
+    token.u.cfunc = cfunc;
+    dict_put(dict, name, &token);
 }
 
-static void test_eval_num_one() {
-    char *input = "123";
-    int expect = 123;
+void register_primitives() {
+    register_op("add", add_op);
+    register_op("def", def_op);
+}
 
+void eval_with_init(char *input) {
     cl_getc_set_src(input);
     stack = stack_init();
     dict = dict_init();
     register_primitives();
 
     eval();
+}
+
+static void test_eval_num_one() {
+    char *input = "123";
+    int expect = 123;
+
+    eval_with_init(input);
 
     Token token;
     int stack_ret = stack_pop(stack, &token);
@@ -114,12 +122,7 @@ static void test_eval_num_two() {
     int expect1 = 456;
     int expect2 = 123;
 
-    cl_getc_set_src(input);
-    stack = stack_init();
-    dict = dict_init();
-    register_primitives();
-
-    eval();
+    eval_with_init(input);
 
     Token token1;
     Token token2;
@@ -145,12 +148,7 @@ static void test_eval_num_add() {
     char *input = "1 2 add";
     int expect = 3;
 
-    cl_getc_set_src(input);
-    stack = stack_init();
-    dict = dict_init();
-    register_primitives();
-
-    eval();
+    eval_with_init(input);
 
     Token token;
     int stack_ret;
@@ -167,12 +165,7 @@ static void test_eval_complex_add() {
     char *input = "1 2 3 add add 4 5 6 7 8 9 add add add add add add";
     int expect = 45;
 
-    cl_getc_set_src(input);
-    stack = stack_init();
-    dict = dict_init();
-    register_primitives();
-
-    eval();
+    eval_with_init(input);
 
     Token token;
     int stack_ret;
@@ -190,12 +183,7 @@ static void test_eval_literal_name() {
     char *expect_name = "foo";
     char expect_type = LITERAL_NAME;
 
-    cl_getc_set_src(input);
-    stack = stack_init();
-    dict = dict_init();
-    register_primitives();
-
-    eval();
+    eval_with_init(input);
 
     Token token;
     int stack_ret;

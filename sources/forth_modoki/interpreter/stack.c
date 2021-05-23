@@ -86,7 +86,7 @@ void test_push_one_integer() {
 
 void test_push_one_literal_name() {
     Token input = {LITERAL_NAME, { .name =  "foo" }};
-    int expected_top = 0;
+    int expected_top = 1;
     int expected_ltype = LITERAL_NAME;
     char *expected_name = "foo";
 

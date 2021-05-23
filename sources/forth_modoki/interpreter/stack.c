@@ -45,6 +45,14 @@ int stack_pop(Stack *stack, Token *out_token) {
     return stack->top;
 }
 
+void stack_print_all(Stack *stack) {
+    printf("*****\n");
+    for (int i = 0; i < stack->top; i++) {
+        printf("  ");
+        print_token(&stack->array[i]);
+    }
+}
+
 void test_initialize_stack() {
     int expected_top = 0;
 

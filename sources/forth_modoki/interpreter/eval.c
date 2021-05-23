@@ -10,6 +10,7 @@
 #include <string.h>
 
 static Stack *stack;
+static Dict *dict;
 
 void eval() {
     Token token;
@@ -44,9 +45,9 @@ void eval() {
 
                 assert(name.ltype == LITERAL_NAME);
 
-                dict_put(name.u.name, &val);
+                dict_put(dict, name.u.name, &val);
 
-            } else if (dict_get(token.u.name, &tmp) == DICT_FOUND) {
+            } else if (dict_get(dict, token.u.name, &tmp) == DICT_FOUND) {
                 stack_push(stack, &tmp);
             }
 
@@ -71,6 +72,7 @@ static void test_eval_num_one() {
 
     cl_getc_set_src(input);
     stack = stack_initialize();
+    dict = dict_init();
 
     eval();
 
@@ -92,6 +94,7 @@ static void test_eval_num_two() {
 
     cl_getc_set_src(input);
     stack = stack_initialize();
+    dict = dict_init();
 
     eval();
 
@@ -121,6 +124,7 @@ static void test_eval_num_add() {
 
     cl_getc_set_src(input);
     stack = stack_initialize();
+    dict = dict_init();
 
     eval();
 
@@ -141,6 +145,7 @@ static void test_eval_complex_add() {
 
     cl_getc_set_src(input);
     stack = stack_initialize();
+    dict = dict_init();
 
     eval();
 
@@ -162,6 +167,7 @@ static void test_eval_literal_name() {
 
     cl_getc_set_src(input);
     stack = stack_initialize();
+    dict = dict_init();
 
     eval();
 
@@ -188,8 +194,9 @@ int main() {
 
     cl_getc_set_src("/abc 42 def abc abc add");
     stack = stack_initialize();
-    dict_reset();
+    dict = dict_init();
     eval();
+
     Token token;
     stack_pop(stack, &token);
     print_token(&token);

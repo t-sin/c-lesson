@@ -39,10 +39,7 @@ void eval() {
             break;
 
         case EXECUTABLE_NAME:
-            if (streq(token.u.name, "add")) {
-                add_op();
-
-            } else if (streq(token.u.name, "def")) {
+            if (streq(token.u.name, "def")) {
                 Token name, val;
 
                 stack_pop(stack, &val);
@@ -52,8 +49,20 @@ void eval() {
 
                 dict_put(dict, name.u.name, &val);
 
-            } else if (dict_get(dict, token.u.name, &tmp) == DICT_FOUND) {
-                stack_push(stack, &tmp);
+            } else {
+                int found = dict_get(dict, token.u.name, &tmp);
+
+                if (found == DICT_FOUND) {
+                    if (tmp.ltype == C_FUNC) {
+                        tmp.u.cfunc();
+                    } else {
+                        // ユーザがdefしたnameなので値をスタックにプッシュ
+                        stack_push(stack, &tmp);
+                    }
+                } else {
+                    // ユーザがevalに渡したnameなのでスタックにプッシュ
+                    stack_push(stack, &token);
+                }
             }
 
             break;
@@ -71,6 +80,13 @@ void eval() {
     } while (ch != EOF);
 }
 
+void register_primitives() {
+    Token token;
+    token.ltype = C_FUNC;
+    token.u.cfunc = add_op;
+    dict_put(dict, "add", &token);
+}
+
 static void test_eval_num_one() {
     char *input = "123";
     int expect = 123;
@@ -78,6 +94,7 @@ static void test_eval_num_one() {
     cl_getc_set_src(input);
     stack = stack_init();
     dict = dict_init();
+    register_primitives();
 
     eval();
 
@@ -100,6 +117,7 @@ static void test_eval_num_two() {
     cl_getc_set_src(input);
     stack = stack_init();
     dict = dict_init();
+    register_primitives();
 
     eval();
 
@@ -130,6 +148,7 @@ static void test_eval_num_add() {
     cl_getc_set_src(input);
     stack = stack_init();
     dict = dict_init();
+    register_primitives();
 
     eval();
 
@@ -151,6 +170,7 @@ static void test_eval_complex_add() {
     cl_getc_set_src(input);
     stack = stack_init();
     dict = dict_init();
+    register_primitives();
 
     eval();
 
@@ -173,6 +193,7 @@ static void test_eval_literal_name() {
     cl_getc_set_src(input);
     stack = stack_init();
     dict = dict_init();
+    register_primitives();
 
     eval();
 
@@ -201,9 +222,11 @@ int main() {
 }
 #else
 int main() {
+    dict = dict_init();
+    register_primitives();
+
     cl_getc_set_src("/abc 42 def abc abc add");
     stack = stack_init();
-    dict = dict_init();
     eval();
 
     Token token;

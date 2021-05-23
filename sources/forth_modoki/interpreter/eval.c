@@ -25,6 +25,42 @@ void add_op() {
     stack_push(stack, &result);
 }
 
+void sub_op() {
+    Token a, b, result;
+
+    stack_pop(stack, &a);
+    stack_pop(stack, &b);
+
+    result.ltype = NUMBER;
+    result.u.number = b.u.number - a.u.number;
+
+    stack_push(stack, &result);
+}
+
+void mul_op() {
+    Token a, b, result;
+
+    stack_pop(stack, &a);
+    stack_pop(stack, &b);
+
+    result.ltype = NUMBER;
+    result.u.number = b.u.number * a.u.number;
+
+    stack_push(stack, &result);
+}
+
+void div_op() {
+    Token a, b, result;
+
+    stack_pop(stack, &a);
+    stack_pop(stack, &b);
+
+    result.ltype = NUMBER;
+    result.u.number = (int)(b.u.number / a.u.number);
+
+    stack_push(stack, &result);
+}
+
 void def_op() {
     Token name, val;
 
@@ -88,6 +124,9 @@ void register_op(char *name, void (*cfunc)()) {
 
 void register_primitives() {
     register_op("add", add_op);
+    register_op("sub", sub_op);
+    register_op("mul", mul_op);
+    register_op("div", div_op);
     register_op("def", def_op);
 }
 
@@ -164,6 +203,57 @@ static void test_eval_num_add() {
 static void test_eval_complex_add() {
     char *input = "1 2 3 add add 4 5 6 7 8 9 add add add add add add";
     int expect = 45;
+
+    eval_with_init(input);
+
+    Token token;
+    int stack_ret;
+
+    stack_ret = stack_pop(stack, &token);
+    assert(stack_ret == 0);
+    assert(token.ltype == NUMBER);
+
+    int actual = token.u.number;
+    assert(expect == actual);
+}
+
+static void test_eval_sub() {
+    char *input = "5 3 sub";
+    int expect = 2;
+
+    eval_with_init(input);
+
+    Token token;
+    int stack_ret;
+
+    stack_ret = stack_pop(stack, &token);
+    assert(stack_ret == 0);
+    assert(token.ltype == NUMBER);
+
+    int actual = token.u.number;
+    assert(expect == actual);
+}
+
+static void test_eval_mul() {
+    char *input = "5 3 mul";
+    int expect = 15;
+
+    eval_with_init(input);
+
+    Token token;
+    int stack_ret;
+
+    stack_ret = stack_pop(stack, &token);
+    assert(stack_ret == 0);
+    assert(token.ltype == NUMBER);
+
+    int actual = token.u.number;
+    assert(expect == actual);
+}
+
+static void test_eval_div() {
+    char *input = "7 3 mul";
+    int expect = 2;
 
     eval_with_init(input);
 

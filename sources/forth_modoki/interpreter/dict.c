@@ -129,9 +129,12 @@ static void test_dict_put_one_literal_name() {
     assert(dict->array[idx]->value.u.name == input.u.name);
 }
 
-static void test_dict_put_two_different_but_same_hash_names() {
+static void test_dict_put_two_different_names_but_same_hash_values() {
+    // この名前はハッシュ関数 (dict.c) のアルゴリズムに依存する
+    // ここでのハッシュ関数は文字列のアスキーコードを足して余りを取るだけなので、
+    // 文字を入れ替えただけだと同じハッシュ値になる。
     Token input1 = {LITERAL_NAME, { .name = "foo"}};
-    Token input2 = {EXECUTABLE_NAME, { .name = "bar"}};
+    Token input2 = {EXECUTABLE_NAME, { .name = "oof"}};
 
     Dict *dict = dict_init();
     int idx;
@@ -144,9 +147,10 @@ static void test_dict_put_two_different_but_same_hash_names() {
 
     dict_put(dict, input2.u.name, &input2);
     idx = hash(input2.u.name);
-    assert(dict->array[idx] != NULL);
-    assert(dict->array[idx]->value.ltype == input2.ltype);
-    assert(dict->array[idx]->value.u.name == input2.u.name);
+    DictEntry *next = dict->array[idx]->next;
+    assert(next != NULL);
+    assert(next->value.ltype == input2.ltype);
+    assert(next->value.u.name == input2.u.name);
 }
 
 static void test_dict_put_two_same_names() {
@@ -222,7 +226,7 @@ int main() {
 
     test_dict_put_one_integer();
     test_dict_put_one_literal_name();
-    test_dict_put_two_different_but_same_hash_names();
+    test_dict_put_two_different_names_but_same_hash_values();
     test_dict_put_two_same_names();
     test_dict_get_one_integer();
     test_dict_get_one_literal_name();

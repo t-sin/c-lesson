@@ -71,7 +71,7 @@ static void test_eval_num_one() {
     int expect = 123;
 
     cl_getc_set_src(input);
-    stack = stack_initialize();
+    stack = stack_init();
     dict = dict_init();
 
     eval();
@@ -93,7 +93,7 @@ static void test_eval_num_two() {
     int expect2 = 123;
 
     cl_getc_set_src(input);
-    stack = stack_initialize();
+    stack = stack_init();
     dict = dict_init();
 
     eval();
@@ -123,7 +123,7 @@ static void test_eval_num_add() {
     int expect = 3;
 
     cl_getc_set_src(input);
-    stack = stack_initialize();
+    stack = stack_init();
     dict = dict_init();
 
     eval();
@@ -144,7 +144,7 @@ static void test_eval_complex_add() {
     int expect = 45;
 
     cl_getc_set_src(input);
-    stack = stack_initialize();
+    stack = stack_init();
     dict = dict_init();
 
     eval();
@@ -166,7 +166,7 @@ static void test_eval_literal_name() {
     char expect_type = LITERAL_NAME;
 
     cl_getc_set_src(input);
-    stack = stack_initialize();
+    stack = stack_init();
     dict = dict_init();
 
     eval();
@@ -193,7 +193,7 @@ int main() {
     //test_all();
 
     cl_getc_set_src("/abc 42 def abc abc add");
-    stack = stack_initialize();
+    stack = stack_init();
     dict = dict_init();
     eval();
 

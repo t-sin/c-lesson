@@ -12,7 +12,7 @@ struct Stack {
 };
 
 
-Stack* stack_initialize() {
+Stack* stack_init() {
     Stack *stack = (Stack *)malloc(sizeof(Stack));
     stack->top = 0;
 
@@ -46,7 +46,7 @@ int stack_pop(Stack *stack, Token *out_token) {
 void test_initialize_stack() {
     int expected_top = 0;
 
-    Stack *stack = stack_initialize();
+    Stack *stack = stack_init();
 
     assert(stack->top == expected_top);
 }
@@ -57,7 +57,7 @@ void test_pop_empty_stack() {
     int actual_return;
     Token token;
 
-    Stack *stack = stack_initialize();
+    Stack *stack = stack_init();
     actual_return = stack_pop(stack, &token);
 
     assert(actual_return == expected_return);
@@ -72,7 +72,7 @@ void test_push_one_integer() {
     int actual_return;
 
     Token token = {NUMBER, {42}};
-    Stack *stack = stack_initialize();
+    Stack *stack = stack_init();
 
     actual_return = stack_push(stack, &token);
 
@@ -90,7 +90,7 @@ void test_push_one_literal_name() {
     int expected_ltype = LITERAL_NAME;
     char *expected_name = "foo";
 
-    Stack *stack = stack_initialize();
+    Stack *stack = stack_init();
     int actual_top = stack_push(stack, &input);
 
     assert(stack->top == expected_top);
@@ -114,7 +114,7 @@ void test_pop_one_integer() {
     int actual_return;
 
     Token out_token;
-    Stack *stack = stack_initialize();
+    Stack *stack = stack_init();
 
     actual_return = stack_push(stack, &input1);
 
@@ -137,7 +137,7 @@ void test_push_to_full_stack() {
     int expected_top = STACK_SIZE;
     int actual_return;
 
-    Stack *stack = stack_initialize();
+    Stack *stack = stack_init();
     Token token = {NUMBER, {42}};
 
     for (int i = 0; i <= STACK_SIZE - 1; i++) {

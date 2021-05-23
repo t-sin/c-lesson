@@ -6,7 +6,7 @@ typedef struct Stack Stack;
 #define STACK_EMPTY -2
 
 // スタックを初期化して返す。
-Stack* stack_initialize();
+Stack* stack_init();
 
 // スタックに要素を追加する。
 // 返り値はtopの位置。スタックがいっぱいの状態でプッシュするとSTACK_FULLが返る。

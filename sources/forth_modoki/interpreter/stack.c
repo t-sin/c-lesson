@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "token.h"
 #include "stack.h"
 
 #define STACK_SIZE 1024

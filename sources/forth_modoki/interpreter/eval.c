@@ -1,6 +1,7 @@
 #include "clesson.h"
 #include "util.h"
 
+#include "token.h"
 #include "parser.h"
 #include "stack.h"
 #include "dict.h"

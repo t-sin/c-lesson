@@ -1,3 +1,4 @@
+#include "token.h"
 #include "parser.h"
 
 typedef struct Dict Dict;

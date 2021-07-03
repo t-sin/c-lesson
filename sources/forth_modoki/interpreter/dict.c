@@ -46,7 +46,6 @@ DictEntry* new_dict_entry(char *key, Token *value) {
     entry->next = NULL;
     entry->key = (char *)malloc(sizeof(char) * (strlen(key) + 1));
     strcpy(entry->key, key);
-    //printf("strlen(entry->key) = %ld\n", strlen(entry->key));
     token_copy(&entry->value, value);
     return entry;
 }
@@ -207,14 +206,18 @@ static void test_dict_get_one_overwritten_integer() {
 }
 
 // malloc時の確保サイズのバグ検出用テスト
-// `malloc(sizeof(strlen(key) + 1))`としてしまってたので、sizeof(int)分しかmallocされない
-// `malloc(sizeof(char) * (strlen(key) + 1))`が正しい
-// このテストでは、長いキー文字列（ただし文字順が異なる）が同じキーだと思われていないことを確認する
+// new_dict_entry()内で`malloc(sizeof(strlen(key) + 1))`としてしまってたので、sizeof(int)分しかmallocされない。
+// `malloc(sizeof(char) * (strlen(key) + 1))`が正しい。
+// このテストでは、長いキー文字列（ただし文字順が異なる）が同じキーだと思われていないことを確認したい。
+// が、new_dict_entry()のstrcpy()での書き込みでセグフォらず先まで動いてしまうので、このテストで検出できてる
+// ように見えるのは偶然といってもいいので実質あまり意味のないテストになってしまった。
+// この対策としてテストコードの実行時にAddress Sanitizerを有効にして実行するよう`run.sh`を書き換える。
+// このテストコードは過去のバグとその調査の痕跡として残しておく。
 static void test_dict_long_key() {
     // ハッシュ値は同じだけど末尾が異なるsizeof(int)以上ありそうな文字列
-    // 23文字(NULL文字入れて24)まではテストがパスしてしまった。
-    // テストが落ちるのは24文字(NULL文字入れて25)以上のとき。
-    // な…ぜ…？？
+    // 23文字(NULL文字入れて24)まではテストパスする。
+    // 24文字(NULL文字入れて25)以上のときstrreqでasserttion failedする。
+    // フラグメンテーション防止のしくみとしてmallocがサイズ大きめで確保してるからと思われる。
     char *key1 = "too-long-key-aaaaaaaa-ab";
     char *key2 = "too-long-key-aaaaaaaa-ba";
 
@@ -231,10 +234,6 @@ static void test_dict_long_key() {
     DictEntry* entry1 = dict->array[idx];
     assert(entry1 != NULL);
 
-    // ここでkeyの中身をぜんぶ見ようとするとSIGSEGVする
-    // print("test_dict_long_key(): key = %s", entry1->key);
-    // streqではセグフォらないが、なんでだろう…？
-    // new_dict_entry()のstrcpy()してるところで落ちそうなものだけど…
     printf("test_dict_long_key(): strlen(entry1->key) = %ld\n", strlen(entry1->key));
     assert(streq(entry1->key, key1));
 
@@ -261,7 +260,7 @@ int main() {
     test_dict_get_one_overwritten_integer();
 
     // Bugfix
-    test_dict_long_key();
+    //test_dict_long_key();
 
     return 0;
 }

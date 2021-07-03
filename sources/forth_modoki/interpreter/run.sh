@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ "$DEBUG" ]; then
-    DEBUGOPT='-g -O0'
+    DEBUGOPT='-g -O0 -fsanitize=address'
 fi
 
 case "$1" in

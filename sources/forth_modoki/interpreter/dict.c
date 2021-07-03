@@ -44,8 +44,9 @@ Dict* dict_init() {
 DictEntry* new_dict_entry(char *key, Token *value) {
     DictEntry *entry = (DictEntry *)malloc(sizeof(DictEntry));
     entry->next = NULL;
-    entry->key = (char *)malloc(sizeof(strlen(key) + 1));
+    entry->key = (char *)malloc(sizeof(char) * (strlen(key) + 1));
     strcpy(entry->key, key);
+    //printf("strlen(entry->key) = %ld\n", strlen(entry->key));
     token_copy(&entry->value, value);
     return entry;
 }
@@ -113,6 +114,7 @@ static void test_dict_put_one_integer() {
 
     int idx = hash(key);
     assert(dict->array[idx] != NULL);
+    assert(streq(dict->array[idx]->key, key));
     assert(dict->array[idx]->value.ltype == input.ltype);
     assert(dict->array[idx]->value.u.number == input.u.number);
 }
@@ -204,6 +206,49 @@ static void test_dict_get_one_overwritten_integer() {
     assert(output.u.number == expected_token->u.number);
 }
 
+// malloc時の確保サイズのバグ検出用テスト
+// `malloc(sizeof(strlen(key) + 1))`としてしまってたので、sizeof(int)分しかmallocされない
+// `malloc(sizeof(char) * (strlen(key) + 1))`が正しい
+// このテストでは、長いキー文字列（ただし文字順が異なる）が同じキーだと思われていないことを確認する
+static void test_dict_long_key() {
+    // ハッシュ値は同じだけど末尾が異なるsizeof(int)以上ありそうな文字列
+    // 23文字(NULL文字入れて24)まではテストがパスしてしまった。
+    // テストが落ちるのは24文字(NULL文字入れて25)以上のとき。
+    // な…ぜ…？？
+    char *key1 = "too-long-key-aaaaaaaa-ab";
+    char *key2 = "too-long-key-aaaaaaaa-ba";
+
+    Token input = {NUMBER, {42}};
+
+    Dict *dict = dict_init();
+    dict_put(dict, key1, &input);
+    dict_put(dict, key2, &input);
+
+    printf("test_dict_long_key(): sizeof(int) = %ld\n", sizeof(int));
+    int idx = hash(key1);
+    printf("test_dict_long_key(): idx = %d\n", idx);
+
+    DictEntry* entry1 = dict->array[idx];
+    assert(entry1 != NULL);
+
+    // ここでkeyの中身をぜんぶ見ようとするとSIGSEGVする
+    // print("test_dict_long_key(): key = %s", entry1->key);
+    // streqではセグフォらないが、なんでだろう…？
+    // new_dict_entry()のstrcpy()してるところで落ちそうなものだけど…
+    printf("test_dict_long_key(): strlen(entry1->key) = %ld\n", strlen(entry1->key));
+    assert(streq(entry1->key, key1));
+
+    idx = hash(key2);
+    printf("test_dict_long_key(): idx = %d\n", idx);
+    DictEntry* entry2 = entry1->next;
+    assert(entry2 != NULL);
+
+    printf("test_dict_long_key(): strlen(entry1->key) = %ld\n", strlen(entry1->key));
+    assert(streq(entry2->key, key2));
+
+    assert(!streq(entry1->key, entry2->key));
+}
+
 #ifdef DICT_TEST
 int main() {
 
@@ -214,6 +259,9 @@ int main() {
     test_dict_get_one_literal_name();
 
     test_dict_get_one_overwritten_integer();
+
+    // Bugfix
+    test_dict_long_key();
 
     return 0;
 }

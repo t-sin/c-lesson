@@ -9,7 +9,6 @@ typedef enum LexicalType {
     OPEN_CURLY,
     CLOSE_CURLY, 
     END_OF_FILE,
-    C_FUNC,
     UNKNOWN
 } LexicalType;
 
@@ -19,7 +18,6 @@ typedef struct Token {
         int number;
         char onechar;
         char *name;
-        void (*cfunc)();
     } u;
 } Token;
 

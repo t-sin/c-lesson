@@ -15,9 +15,6 @@ void token_copy(Token *dest, Token *src) {
         dest->u.name = src->u.name;
         break;
 
-    case C_FUNC:
-        dest->u.cfunc = src->u.cfunc;
-
     default:
         dest->u.onechar = src->u.onechar;
         break;

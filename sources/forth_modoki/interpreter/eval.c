@@ -2,6 +2,8 @@
 #include "util.h"
 
 #include "token.h"
+#include "element.h"
+
 #include "parser.h"
 #include "stack.h"
 #include "dict.h"
@@ -14,83 +16,108 @@ static Stack *stack;
 static Dict *dict;
 
 void add_op() {
-    Token a, b, result;
+    Element a, b, result;
 
     stack_pop(stack, &a);
     stack_pop(stack, &b);
 
-    result.ltype = NUMBER;
+    result.etype = ELEMENT_NUMBER;
     result.u.number = a.u.number + b.u.number;
 
     stack_push(stack, &result);
 }
 
 void sub_op() {
-    Token a, b, result;
+    Element a, b, result;
 
     stack_pop(stack, &a);
     stack_pop(stack, &b);
 
-    result.ltype = NUMBER;
+    result.etype = ELEMENT_NUMBER;
     result.u.number = b.u.number - a.u.number;
 
     stack_push(stack, &result);
 }
 
 void mul_op() {
-    Token a, b, result;
+    Element a, b, result;
 
     stack_pop(stack, &a);
     stack_pop(stack, &b);
 
-    result.ltype = NUMBER;
+    result.etype = ELEMENT_NUMBER;
     result.u.number = b.u.number * a.u.number;
 
     stack_push(stack, &result);
 }
 
 void div_op() {
-    Token a, b, result;
+    Element a, b, result;
 
     stack_pop(stack, &a);
     stack_pop(stack, &b);
 
-    result.ltype = NUMBER;
+    result.etype = ELEMENT_NUMBER;
     result.u.number = (int)(b.u.number / a.u.number);
 
     stack_push(stack, &result);
 }
 
 void def_op() {
-    Token name, val;
+    Element name, val;
 
     stack_pop(stack, &val);
     stack_pop(stack, &name);
 
-    assert(name.ltype == LITERAL_NAME);
+    assert(name.etype == ELEMENT_LITERAL_NAME);
 
     dict_put(dict, name.u.name, &val);
 }
 
+void token_to_element(Token *token, Element *e) {
+    switch (token->ltype) {
+    case NUMBER:
+        e->etype = ELEMENT_NUMBER;
+        e->u.number = token->u.number;
+        break;
+
+    case EXECUTABLE_NAME:
+        e->etype = ELEMENT_EXECUTABLE_NAME;
+        e->u.name = token->u.name;
+        break;
+
+    case LITERAL_NAME:
+        e->etype = ELEMENT_LITERAL_NAME;
+        e->u.name = token->u.name;
+        break;
+
+    default:
+        printf("cannot convert Token: ");
+        print_token(token);
+    }
+}
+
 void eval() {
     Token token;
+    Element elem;
     int ch = EOF;
     int found;
 
     do {
         ch = parse_one(ch, &token);
-        Token tmp;
+        Element tmp;
 
         switch (token.ltype) {
         case NUMBER:
-            stack_push(stack, &token);
+            token_to_element(&token, &elem);
+            stack_push(stack, &elem);
             break;
 
         case EXECUTABLE_NAME:
             found = dict_get(dict, token.u.name, &tmp);
 
             if (found == DICT_FOUND) {
-                if (tmp.ltype == C_FUNC) {
+                if (tmp.etype == ELEMENT_C_FUNC) {
                     tmp.u.cfunc();
                 } else {
                     // ユーザがdefしたnameなので値をスタックにプッシュ
@@ -98,12 +125,14 @@ void eval() {
                 }
             } else {
                 // ユーザがevalに渡したnameなのでスタックにプッシュ
-                stack_push(stack, &token);
+                token_to_element(&token, &elem);
+                stack_push(stack, &elem);
             }
             break;
 
         case LITERAL_NAME:
-            stack_push(stack, &token);
+            token_to_element(&token, &elem);
+            stack_push(stack, &elem);
             break;
 
         case SPACE:
@@ -116,10 +145,10 @@ void eval() {
 }
 
 void register_op(char *name, void (*cfunc)()) {
-    Token token;
-    token.ltype = C_FUNC;
-    token.u.cfunc = cfunc;
-    dict_put(dict, name, &token);
+    Element elem;
+    elem.etype = ELEMENT_C_FUNC;
+    elem.u.cfunc = cfunc;
+    dict_put(dict, name, &elem);
 }
 
 void register_primitives() {
@@ -145,13 +174,13 @@ static void test_eval_num_one() {
 
     eval_with_init(input);
 
-    Token token;
-    int stack_ret = stack_pop(stack, &token);
+    Element elem;
+    int stack_ret = stack_pop(stack, &elem);
 
     assert(stack_ret == 0);
-    assert(token.ltype == NUMBER);
+    assert(elem.etype == ELEMENT_NUMBER);
 
-    int actual = token.u.number;
+    int actual = elem.u.number;
 
     assert(expect == actual);
 }
@@ -163,20 +192,20 @@ static void test_eval_num_two() {
 
     eval_with_init(input);
 
-    Token token1;
-    Token token2;
+    Element elem1;
+    Element elem2;
     int stack_ret;
 
-    stack_ret = stack_pop(stack, &token1);
+    stack_ret = stack_pop(stack, &elem1);
     assert(stack_ret == 1);
-    assert(token1.ltype == NUMBER);
+    assert(elem1.etype == ELEMENT_NUMBER);
 
-    stack_ret = stack_pop(stack, &token2);
+    stack_ret = stack_pop(stack, &elem2);
     assert(stack_ret == 0);
-    assert(token2.ltype == NUMBER);
+    assert(elem2.etype == ELEMENT_NUMBER);
 
-    int actual1 = token1.u.number;
-    int actual2 = token2.u.number;
+    int actual1 = elem1.u.number;
+    int actual2 = elem2.u.number;
 
     assert(expect1 == actual1);
     assert(expect2 == actual2);
@@ -189,14 +218,14 @@ static void test_eval_num_add() {
 
     eval_with_init(input);
 
-    Token token;
+    Element elem;
     int stack_ret;
 
-    stack_ret = stack_pop(stack, &token);
+    stack_ret = stack_pop(stack, &elem);
     assert(stack_ret == 0);
-    assert(token.ltype == NUMBER);
+    assert(elem.etype == ELEMENT_NUMBER);
 
-    int actual = token.u.number;
+    int actual = elem.u.number;
     assert(expect == actual);
 }
 
@@ -206,14 +235,14 @@ static void test_eval_complex_add() {
 
     eval_with_init(input);
 
-    Token token;
+    Element elem;
     int stack_ret;
 
-    stack_ret = stack_pop(stack, &token);
+    stack_ret = stack_pop(stack, &elem);
     assert(stack_ret == 0);
-    assert(token.ltype == NUMBER);
+    assert(elem.etype == ELEMENT_NUMBER);
 
-    int actual = token.u.number;
+    int actual = elem.u.number;
     assert(expect == actual);
 }
 
@@ -223,14 +252,14 @@ static void test_eval_sub() {
 
     eval_with_init(input);
 
-    Token token;
+    Element elem;
     int stack_ret;
 
-    stack_ret = stack_pop(stack, &token);
+    stack_ret = stack_pop(stack, &elem);
     assert(stack_ret == 0);
-    assert(token.ltype == NUMBER);
+    assert(elem.etype == ELEMENT_NUMBER);
 
-    int actual = token.u.number;
+    int actual = elem.u.number;
     assert(expect == actual);
 }
 
@@ -240,64 +269,64 @@ static void test_eval_mul() {
 
     eval_with_init(input);
 
-    Token token;
+    Element elem;
     int stack_ret;
 
-    stack_ret = stack_pop(stack, &token);
+    stack_ret = stack_pop(stack, &elem);
     assert(stack_ret == 0);
-    assert(token.ltype == NUMBER);
+    assert(elem.etype == ELEMENT_NUMBER);
 
-    int actual = token.u.number;
+    int actual = elem.u.number;
     assert(expect == actual);
 }
 
 static void test_eval_div() {
-    char *input = "7 3 mul";
+    char *input = "7 3 div";
     int expect = 2;
 
     eval_with_init(input);
 
-    Token token;
+    Element elem;
     int stack_ret;
 
-    stack_ret = stack_pop(stack, &token);
+    stack_ret = stack_pop(stack, &elem);
     assert(stack_ret == 0);
-    assert(token.ltype == NUMBER);
+    assert(elem.etype == ELEMENT_NUMBER);
 
-    int actual = token.u.number;
+    int actual = elem.u.number;
     assert(expect == actual);
 }
 
 static void test_eval_literal_name() {
     char *input = "/foo";
     char *expect_name = "foo";
-    char expect_type = LITERAL_NAME;
+    char expect_type = ELEMENT_LITERAL_NAME;
 
     eval_with_init(input);
 
-    Token token;
+    Element elem;
     int stack_ret;
 
-    stack_ret = stack_pop(stack, &token);
+    stack_ret = stack_pop(stack, &elem);
     assert(stack_ret == 0);
-    assert(token.ltype == expect_type);
-    assert(streq(token.u.name, expect_name));
+    assert(elem.etype == expect_type);
+    assert(streq(elem.u.name, expect_name));
 }
 
 static void test_eval_def() {
     char *input = "/name 42 def name";
-    int expect_type = NUMBER;
+    int expect_type = ELEMENT_NUMBER;
     int expect_value = 42;
 
     eval_with_init(input);
 
-    Token token;
+    Element elem;
     int stack_ret;
 
-    stack_ret = stack_pop(stack, &token);
+    stack_ret = stack_pop(stack, &elem);
     assert(stack_ret == 0);
-    assert(token.ltype == expect_type);
-    assert(token.u.number == expect_value);
+    assert(elem.etype == expect_type);
+    assert(elem.u.number == expect_value);
 }
 
 static void test_all() {
@@ -324,9 +353,9 @@ int main() {
     stack = stack_init();
     eval();
 
-    Token token;
-    stack_pop(stack, &token);
-    print_token(&token);
+    Element elem;
+    stack_pop(stack, &elem);
+    print_token(&elem);
 
     return 0;
 }

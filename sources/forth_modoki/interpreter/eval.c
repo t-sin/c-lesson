@@ -15,6 +15,7 @@
 static Stack *stack;
 static Dict *dict;
 
+
 void add_op() {
     Element a, b, result;
 
@@ -97,6 +98,43 @@ void token_to_element(Token *token, Element *e) {
     }
 }
 
+#define MAX_NAME_OP_NUMBERS 256
+
+int compile_exec_array(Element *out_elem) {
+    Token token;
+    Element elem;
+    int ch = EOF;
+
+    Element array[MAX_NAME_OP_NUMBERS];
+    int idx = 0;
+
+    do {
+        ch = parse_one(ch, &token);
+
+        switch (token.ltype) {
+        case NUMBER:
+        case EXECUTABLE_NAME:
+        case LITERAL_NAME:
+            token_to_element(&token, &elem);
+            copy_element(&array[idx++], &elem);
+            break;
+
+        case OPEN_CURLY:
+            break;
+
+        case CLOSE_CURLY:
+            // ElementArrayをつくってElementにつめる
+            return ch;
+
+        case END_OF_FILE:
+            printf("Unexpected EOF\n");
+            break;
+        }
+    } while (ch != EOF);
+
+    return ch;
+}
+
 void eval() {
     Token token;
     Element elem;
@@ -132,6 +170,11 @@ void eval() {
 
         case LITERAL_NAME:
             token_to_element(&token, &elem);
+            stack_push(stack, &elem);
+            break;
+
+        case OPEN_CURLY:
+            ch = compile_exec_array(&elem);
             stack_push(stack, &elem);
             break;
 

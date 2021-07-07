@@ -5,7 +5,8 @@ typedef enum ElementType {
     ELEMENT_NUMBER,
     ELEMENT_EXECUTABLE_NAME,
     ELEMENT_LITERAL_NAME,
-    ELEMENT_C_FUNC
+    ELEMENT_C_FUNC,
+    ELEMENT_EXEC_ARRAY
 } ElementType;
 
 typedef struct Element {

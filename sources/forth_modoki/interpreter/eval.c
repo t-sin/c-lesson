@@ -355,7 +355,7 @@ int main() {
 
     Element elem;
     stack_pop(stack, &elem);
-    print_token(&elem);
+    print_element(&elem);
 
     return 0;
 }

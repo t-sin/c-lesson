@@ -6,7 +6,7 @@ fi
 
 case "$1" in
     main)
-        gcc $DEBUGOPT -o fm cl_getc.c token.c util.c parser.c stack.c dict.c eval.c && ./fm
+        gcc $DEBUGOPT -o fm cl_getc.c token.c element.c util.c parser.c stack.c dict.c eval.c && ./fm
         ;;
     eval-test)
         gcc $DEBUGOPT -DEVAL_TEST -o eval-test cl_getc.c token.c element.c util.c parser.c stack.c dict.c eval.c && ./eval-test

@@ -213,7 +213,7 @@ void eval_with_init(char *input) {
 
 static void test_eval_num_one() {
     char *input = "123";
-    int expect = 123;
+    Element expected = {ELEMENT_NUMBER, {123}};
 
     eval_with_init(input);
 
@@ -221,17 +221,13 @@ static void test_eval_num_one() {
     int stack_ret = stack_pop(stack, &elem);
 
     assert(stack_ret == 0);
-    assert(elem.etype == ELEMENT_NUMBER);
-
-    int actual = elem.u.number;
-
-    assert(expect == actual);
+    assert(element_equal(&elem, &expected));
 }
 
 static void test_eval_num_two() {
     char *input = "123 456";
-    int expect1 = 456;
-    int expect2 = 123;
+    Element expected1 = {ELEMENT_NUMBER, {456}};
+    Element expected2 = {ELEMENT_NUMBER, {123}};
 
     eval_with_init(input);
 
@@ -241,23 +237,17 @@ static void test_eval_num_two() {
 
     stack_ret = stack_pop(stack, &elem1);
     assert(stack_ret == 1);
-    assert(elem1.etype == ELEMENT_NUMBER);
+    assert(element_equal(&elem1, &expected1));
 
     stack_ret = stack_pop(stack, &elem2);
     assert(stack_ret == 0);
-    assert(elem2.etype == ELEMENT_NUMBER);
-
-    int actual1 = elem1.u.number;
-    int actual2 = elem2.u.number;
-
-    assert(expect1 == actual1);
-    assert(expect2 == actual2);
+    assert(element_equal(&elem2, &expected2));
 }
 
 
 static void test_eval_num_add() {
     char *input = "1 2 add";
-    int expect = 3;
+    Element expected = {ELEMENT_NUMBER, {3}};
 
     eval_with_init(input);
 
@@ -266,15 +256,12 @@ static void test_eval_num_add() {
 
     stack_ret = stack_pop(stack, &elem);
     assert(stack_ret == 0);
-    assert(elem.etype == ELEMENT_NUMBER);
-
-    int actual = elem.u.number;
-    assert(expect == actual);
+    assert(element_equal(&elem, &expected));
 }
 
 static void test_eval_complex_add() {
     char *input = "1 2 3 add add 4 5 6 7 8 9 add add add add add add";
-    int expect = 45;
+    Element expected = {ELEMENT_NUMBER, {45}};
 
     eval_with_init(input);
 
@@ -283,15 +270,12 @@ static void test_eval_complex_add() {
 
     stack_ret = stack_pop(stack, &elem);
     assert(stack_ret == 0);
-    assert(elem.etype == ELEMENT_NUMBER);
-
-    int actual = elem.u.number;
-    assert(expect == actual);
+    assert(element_equal(&elem, &expected));
 }
 
 static void test_eval_sub() {
     char *input = "5 3 sub";
-    int expect = 2;
+    Element expected = {ELEMENT_NUMBER, {2}};
 
     eval_with_init(input);
 
@@ -300,15 +284,12 @@ static void test_eval_sub() {
 
     stack_ret = stack_pop(stack, &elem);
     assert(stack_ret == 0);
-    assert(elem.etype == ELEMENT_NUMBER);
-
-    int actual = elem.u.number;
-    assert(expect == actual);
+    assert(element_equal(&elem, &expected));
 }
 
 static void test_eval_mul() {
     char *input = "5 3 mul";
-    int expect = 15;
+    Element expected = {ELEMENT_NUMBER, {15}};
 
     eval_with_init(input);
 
@@ -317,15 +298,12 @@ static void test_eval_mul() {
 
     stack_ret = stack_pop(stack, &elem);
     assert(stack_ret == 0);
-    assert(elem.etype == ELEMENT_NUMBER);
-
-    int actual = elem.u.number;
-    assert(expect == actual);
+    assert(element_equal(&elem, &expected));
 }
 
 static void test_eval_div() {
     char *input = "7 3 div";
-    int expect = 2;
+    Element expected = {ELEMENT_NUMBER, {2}};
 
     eval_with_init(input);
 
@@ -334,16 +312,12 @@ static void test_eval_div() {
 
     stack_ret = stack_pop(stack, &elem);
     assert(stack_ret == 0);
-    assert(elem.etype == ELEMENT_NUMBER);
-
-    int actual = elem.u.number;
-    assert(expect == actual);
+    assert(element_equal(&elem, &expected));
 }
 
 static void test_eval_literal_name() {
     char *input = "/foo";
-    char *expect_name = "foo";
-    char expect_type = ELEMENT_LITERAL_NAME;
+    Element expected = {ELEMENT_LITERAL_NAME, {name: "foo"}};
 
     eval_with_init(input);
 
@@ -352,14 +326,12 @@ static void test_eval_literal_name() {
 
     stack_ret = stack_pop(stack, &elem);
     assert(stack_ret == 0);
-    assert(elem.etype == expect_type);
-    assert(streq(elem.u.name, expect_name));
+    assert(element_equal(&elem, &expected));
 }
 
 static void test_eval_def() {
     char *input = "/name 42 def name";
-    int expect_type = ELEMENT_NUMBER;
-    int expect_value = 42;
+    Element expected = {ELEMENT_NUMBER, {42}};
 
     eval_with_init(input);
 

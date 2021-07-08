@@ -346,8 +346,133 @@ static void test_eval_def() {
 
     stack_ret = stack_pop(stack, &elem);
     assert(stack_ret == 0);
-    assert(elem.etype == expect_type);
-    assert(elem.u.number == expect_value);
+    assert(element_equal(&elem, &expected));
+}
+
+static void test_eval_exec_array_with_a_number() {
+    char *input = "{ 42 }";
+    int expected_type = ELEMENT_EXEC_ARRAY;
+    int expected_exec_array_len = 1;
+    Element expected_exec_array_val = {ELEMENT_NUMBER, {42}};
+
+    eval_with_init(input);
+
+    Element elem;
+    int stack_ret;
+
+    stack_ret = stack_pop(stack, &elem);
+    assert(stack_ret == 0);
+    assert(elem.etype == expected_type);
+    assert(elem.u.byte_codes->len = expected_exec_array_len);
+    assert(element_equal(&elem.u.byte_codes->elements[0], &expected_exec_array_val));
+}
+
+static void test_eval_exec_array_with_a_literal_name() {
+    char *input = "{ /abc }";
+    int expected_type = ELEMENT_EXEC_ARRAY;
+    int expected_exec_array_len = 1;
+    Element expected_exec_array_val = {ELEMENT_LITERAL_NAME, {name: "abc"}};
+
+    eval_with_init(input);
+
+    Element elem;
+    int stack_ret;
+
+    stack_ret = stack_pop(stack, &elem);
+    assert(stack_ret == 0);
+    assert(elem.etype == expected_type);
+    assert(elem.u.byte_codes->len = expected_exec_array_len);
+    assert(element_equal(&elem.u.byte_codes->elements[0], &expected_exec_array_val));
+}
+
+static void test_eval_exec_array_with_a_executable_name() {
+    char *input = "{ abc }";
+    int expected_type = ELEMENT_EXEC_ARRAY;
+    int expected_exec_array_len = 1;
+    Element expected_exec_array_val = {ELEMENT_EXECUTABLE_NAME, {name: "abc"}};
+
+    eval_with_init(input);
+
+    Element elem;
+    int stack_ret;
+
+    stack_ret = stack_pop(stack, &elem);
+    assert(stack_ret == 0);
+    assert(elem.etype == expected_type);
+    assert(elem.u.byte_codes->len = expected_exec_array_len);
+    assert(element_equal(&elem.u.byte_codes->elements[0], &expected_exec_array_val));
+}
+
+static void test_eval_exec_array_with_two_elements() {
+    char *input = "{ 42 43 }";
+    int expected_type = ELEMENT_EXEC_ARRAY;
+    int expected_exec_array_len = 2;
+    Element expected_exec_array_val1 = {ELEMENT_NUMBER, {42}};
+    Element expected_exec_array_val2 = {ELEMENT_NUMBER, {43}};
+
+    eval_with_init(input);
+
+    Element elem;
+    int stack_ret;
+
+    stack_ret = stack_pop(stack, &elem);
+    assert(stack_ret == 0);
+    assert(elem.etype == expected_type);
+    assert(elem.u.byte_codes->len = expected_exec_array_len);
+    assert(element_equal(&elem.u.byte_codes->elements[0], &expected_exec_array_val1));
+    assert(element_equal(&elem.u.byte_codes->elements[1], &expected_exec_array_val2));
+}
+
+static void test_eval_two_exec_array() {
+    char *input = "{1} {2}";
+    int expected_type = ELEMENT_EXEC_ARRAY;
+    int expected_exec_array_len = 1;
+    Element expected_exec_array1_val = {ELEMENT_NUMBER, {1}};
+    Element expected_exec_array2_val = {ELEMENT_NUMBER, {2}};
+
+    eval_with_init(input);
+
+    Element elem;
+    int stack_ret;
+
+    stack_ret = stack_pop(stack, &elem);
+    assert(stack_ret == 1);
+    assert(elem.etype == expected_type);
+    assert(elem.u.byte_codes->len = expected_exec_array_len);
+    assert(element_equal(&elem.u.byte_codes->elements[0], &expected_exec_array1_val));
+
+    stack_ret = stack_pop(stack, &elem);
+    assert(stack_ret == 0);
+    assert(elem.etype == expected_type);
+    assert(elem.u.byte_codes->len = expected_exec_array_len);
+    assert(element_equal(&elem.u.byte_codes->elements[0], &expected_exec_array2_val));
+}
+
+static void test_eval_nested_exec_array() {
+    char *input = "{1 {2} 3}";
+    int expected_type = ELEMENT_EXEC_ARRAY;
+    int expected_exec_array1_len = 3;
+    int expected_exec_array2_len = 1;
+    Element expected_exec_array_val1 = {ELEMENT_NUMBER, {1}};
+    Element expected_exec_array2_val = {ELEMENT_NUMBER, {2}};
+    Element expected_exec_array_val3 = {ELEMENT_NUMBER, {3}};
+
+    eval_with_init(input);
+
+    Element elem;
+    int stack_ret;
+
+    stack_ret = stack_pop(stack, &elem);
+    assert(stack_ret == 0);
+    assert(elem.etype == expected_type);
+    assert(elem.u.byte_codes->len = expected_exec_array1_len);
+    assert(element_equal(&elem.u.byte_codes->elements[0], &expected_exec_array_val1));
+    assert(element_equal(&elem.u.byte_codes->elements[2], &expected_exec_array_val3));
+
+    Element *arr = &elem.u.byte_codes->elements[1];
+    assert(arr->etype == expected_type);
+    assert(arr->u.byte_codes->len = expected_exec_array2_len);
+    assert(element_equal(&arr->u.byte_codes->elements[0], &expected_exec_array2_val));
 }
 
 static void test_all() {
@@ -358,6 +483,14 @@ static void test_all() {
 
     test_eval_literal_name();
     test_eval_def();
+
+    test_eval_exec_array_with_a_number();
+    test_eval_exec_array_with_a_literal_name();
+    test_eval_exec_array_with_a_executable_name();
+
+    test_eval_exec_array_with_two_elements();
+    test_eval_two_exec_array();
+    test_eval_nested_exec_array();
 }
 
 #ifdef EVAL_TEST

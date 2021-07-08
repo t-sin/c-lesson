@@ -41,8 +41,16 @@ void print_element(Element *e) {
         break;
 
     case ELEMENT_EXEC_ARRAY:
-        printf("executable array: *\n");
+        printf("executable array:\n");
+        printf("length = %d\n", e->u.byte_codes->len);
+        for (int i = 0; i < e->u.byte_codes->len; i++) {
+            printf("  ");
+            print_element(&e->u.byte_codes->elements[i]);
+        }
         break;
+
+    default:
+        printf("unkown element: %d\n", e->etype);
     }
 }
 

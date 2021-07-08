@@ -20,5 +20,6 @@ typedef struct Element {
 
 void copy_element(Element *dest, Element *src);
 void print_element(Element *e);
+int element_equal(Element *a, Element *b);
 
 #endif

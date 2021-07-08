@@ -10,6 +10,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 static Stack *stack;
@@ -103,6 +104,7 @@ void token_to_element(Token *token, Element *e) {
 int compile_exec_array(Element *out_elem) {
     Token token;
     Element elem;
+    ElementArray *elem_array;
     int ch = EOF;
 
     Element array[MAX_NAME_OP_NUMBERS];
@@ -120,10 +122,14 @@ int compile_exec_array(Element *out_elem) {
             break;
 
         case OPEN_CURLY:
+            ch = compile_exec_array(&elem);
+            copy_element(&array[idx++], &elem);
             break;
 
         case CLOSE_CURLY:
-            // ElementArrayをつくってElementにつめる
+            elem_array = (struct ElementArray*)malloc(sizeof(ElementArray) + sizeof(Element) * idx);
+            out_elem->etype = ELEMENT_EXEC_ARRAY;
+            out_elem->u.byte_codes = elem_array;
             return ch;
 
         case END_OF_FILE:

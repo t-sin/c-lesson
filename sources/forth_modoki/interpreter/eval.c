@@ -141,6 +141,50 @@ int compile_exec_array(Element *out_elem) {
     return ch;
 }
 
+void eval_exec_array(ElementArray *elems) {
+    for (int i = 0; i < elems->len; i++) {
+        Element elem = elems->elements[i];
+
+        Element tmp;
+        int found;
+
+        switch (elem.etype) {
+        case ELEMENT_NUMBER:
+            stack_push(stack, &elem);
+            break;
+
+        case ELEMENT_EXECUTABLE_NAME:
+            found = dict_get(dict, elem.u.name, &tmp);
+
+            if (found == DICT_FOUND) {
+                if (tmp.etype == ELEMENT_C_FUNC) {
+                    tmp.u.cfunc();
+                } else {
+                    // ユーザがdefしたnameなので値をスタックにプッシュ
+                    stack_push(stack, &tmp);
+                }
+            } else {
+                // これはどういう状況だ…？
+                // symbolがunbound的な感じだと思うのでエラーとしたい。
+                printf("unbound executable name: %s\n", elem.u.name);
+            }
+            break;
+
+        case ELEMENT_LITERAL_NAME:
+            stack_push(stack, &elem);
+            break;
+
+        case ELEMENT_C_FUNC:
+            elem.u.cfunc();
+            break;
+
+        case ELEMENT_EXEC_ARRAY:
+            eval_exec_array(elem.u.byte_codes);
+            break;
+        }
+    }
+}
+
 void eval() {
     Token token;
     Element elem;
@@ -163,14 +207,20 @@ void eval() {
             if (found == DICT_FOUND) {
                 if (tmp.etype == ELEMENT_C_FUNC) {
                     tmp.u.cfunc();
+                } else if (tmp.etype == ELEMENT_EXEC_ARRAY) {
+                    eval_exec_array(tmp.u.byte_codes);
                 } else {
                     // ユーザがdefしたnameなので値をスタックにプッシュ
                     stack_push(stack, &tmp);
                 }
             } else {
-                // ユーザがevalに渡したnameなのでスタックにプッシュ
-                token_to_element(&token, &elem);
-                stack_push(stack, &elem);
+                // // ユーザがevalに渡したnameなのでスタックにプッシュ
+                // token_to_element(&token, &elem);
+                // stack_push(stack, &elem);
+                // ↑ ちがう気がする。
+                // symbolがunbound的な感じだと思うのでエラーとしたい。
+                printf("unbound executable name: %s\n", elem.u.name);
+
             }
             break;
 
@@ -475,6 +525,56 @@ static void test_eval_nested_exec_array() {
     assert(element_equal(&arr->u.byte_codes->elements[0], &expected_exec_array2_val));
 }
 
+static void test_eval_invoke_exec_array_with_a_number() {
+    char *input = "/name { 1 } def name";
+    Element expected = {ELEMENT_NUMBER, {1}};
+
+    eval_with_init(input);
+
+    Element elem;
+    int stack_ret;
+
+    stack_ret = stack_pop(stack, &elem);
+    assert(stack_ret == 0);
+    assert(element_equal(&elem, &expected));
+}
+
+static void test_eval_invoke_nested_exec_array() {
+    char *input = "/name1 { 1 } def /name2 { name1 2 } name2";
+    Element expected1 = {ELEMENT_NUMBER, {2}};
+    Element expected2 = {ELEMENT_NUMBER, {1}};
+
+    eval_with_init(input);
+
+    Element elem1, elem2;
+    int stack_ret;
+
+    stack_ret = stack_pop(stack, &elem1);
+    assert(stack_ret == 1);
+    assert(element_equal(&elem1, &expected1));
+
+    stack_ret = stack_pop(stack, &elem2);
+    assert(stack_ret == 0);
+    assert(element_equal(&elem2, &expected2));
+}
+
+static void test_eval_invoke_nested_exec_array2() {
+    char *input = "/ZZ {6} def /YY {4 ZZ 5} def /XX {1 2 YY 3} def ZZ";
+    int expected_nums[] = {1, 2, 4, 6, 5, 3};
+
+    eval_with_init(input);
+
+    Element elem;
+    int stack_ret;
+
+    for (int i = sizeof(expected_nums) / sizeof(expected_nums[0]); i >= 0; i--) {
+         Element expected = {ELEMENT_NUMBER, {expected_nums[i]}};
+         stack_ret = stack_pop(stack, &elem);
+         assert(stack_ret == i - 1);
+         assert(element_equal(&elem, &expected));
+    }
+}
+
 static void test_all() {
     test_eval_num_one();
     test_eval_num_two();
@@ -491,6 +591,10 @@ static void test_all() {
     test_eval_exec_array_with_two_elements();
     test_eval_two_exec_array();
     test_eval_nested_exec_array();
+
+    test_eval_invoke_exec_array_with_a_number();
+    test_eval_invoke_nested_exec_array();
+    test_eval_invoke_nested_exec_array2();
 }
 
 #ifdef EVAL_TEST

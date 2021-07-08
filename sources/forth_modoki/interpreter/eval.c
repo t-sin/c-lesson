@@ -219,7 +219,7 @@ void eval() {
                 // stack_push(stack, &elem);
                 // ↑ ちがう気がする。
                 // symbolがunbound的な感じだと思うのでエラーとしたい。
-                printf("unbound executable name: %s\n", elem.u.name);
+                printf("unbound executable name: %s\n", token.u.name);
 
             }
             break;

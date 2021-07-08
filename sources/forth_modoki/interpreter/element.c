@@ -39,6 +39,10 @@ void print_element(Element *e) {
     case ELEMENT_C_FUNC:
         printf("C function: *\n");
         break;
+
+    case ELEMENT_EXEC_ARRAY:
+        printf("executable array: *\n");
+        break;
     }
 }
 

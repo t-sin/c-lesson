@@ -237,6 +237,10 @@ void eval() {
             stack_push(stack, &elem);
             break;
 
+       case CLOSE_CURLY:
+            printf("unexpected close curly.\n");
+            return;
+
         case SPACE:
             break;
 

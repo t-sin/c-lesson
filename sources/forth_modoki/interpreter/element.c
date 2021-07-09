@@ -19,6 +19,10 @@ void copy_element(Element *dest, Element *src) {
     case ELEMENT_C_FUNC:
         dest->u.cfunc = src->u.cfunc;
         break;
+
+    case ELEMENT_EXEC_ARRAY:
+        dest->u.byte_codes = src->u.byte_codes;
+        break;
     }
 }
 

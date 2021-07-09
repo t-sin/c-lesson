@@ -5,6 +5,9 @@ if [ "$DEBUG" ]; then
 fi
 
 case "$1" in
+    clear)
+        rm parser-test stack-test dict-test eval-test fm
+        ;;
     main)
         gcc $DEBUGOPT -o fm cl_getc.c token.c element.c util.c parser.c stack.c dict.c eval.c && ./fm
         ;;

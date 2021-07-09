@@ -571,7 +571,7 @@ static void test_eval_invoke_nested_exec_array() {
 }
 
 static void test_eval_invoke_nested_exec_array2() {
-    char *input = "/ZZ {6} def /YY {4 ZZ 5} def /XX {1 2 YY 3} def ZZ";
+    char *input = "/ZZ {6} def /YY {4 ZZ 5} def /XX {1 2 YY 3} def XX";
     int expected_nums[] = {1, 2, 4, 6, 5, 3};
 
     eval_with_init(input);

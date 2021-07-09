@@ -579,11 +579,12 @@ static void test_eval_invoke_nested_exec_array2() {
     Element elem;
     int stack_ret;
 
-    for (int i = sizeof(expected_nums) / sizeof(expected_nums[0]); i >= 0; i--) {
-         Element expected = {ELEMENT_NUMBER, {expected_nums[i]}};
-         stack_ret = stack_pop(stack, &elem);
-         assert(stack_ret == i - 1);
-         assert(element_equal(&elem, &expected));
+    for (int i = sizeof(expected_nums) / sizeof(expected_nums[0]); i > 0; i--) {
+        int idx = i - 1;
+        Element expected = {ELEMENT_NUMBER, {expected_nums[idx]}};
+        stack_ret = stack_pop(stack, &elem);
+        assert(stack_ret == idx);
+        assert(element_equal(&elem, &expected));
     }
 }
 

@@ -239,10 +239,13 @@ void eval() {
         case SPACE:
             break;
 
+        case END_OF_FILE:
+            break;
+
         default:
             printf("unknown token type: %d\n", token.ltype);
         }
-    } while (ch != EOF);
+    } while (token.ltype != END_OF_FILE);
 }
 
 void register_op(char *name, void (*cfunc)()) {

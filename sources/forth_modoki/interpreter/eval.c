@@ -162,6 +162,8 @@ void eval_exec_array(ElementArray *elems) {
             if (found == DICT_FOUND) {
                 if (tmp.etype == ELEMENT_C_FUNC) {
                     tmp.u.cfunc();
+                } else if (tmp.etype == ELEMENT_EXEC_ARRAY) {
+                    eval_exec_array(tmp.u.byte_codes);
                 } else {
                     // ユーザがdefしたnameなので値をスタックにプッシュ
                     stack_push(stack, &tmp);

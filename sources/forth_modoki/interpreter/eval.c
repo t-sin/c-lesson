@@ -16,66 +16,6 @@
 static Stack *stack;
 static Dict *dict;
 
-
-void add_op() {
-    Element a, b, result;
-
-    stack_pop(stack, &a);
-    stack_pop(stack, &b);
-
-    result.etype = ELEMENT_NUMBER;
-    result.u.number = a.u.number + b.u.number;
-
-    stack_push(stack, &result);
-}
-
-void sub_op() {
-    Element a, b, result;
-
-    stack_pop(stack, &a);
-    stack_pop(stack, &b);
-
-    result.etype = ELEMENT_NUMBER;
-    result.u.number = b.u.number - a.u.number;
-
-    stack_push(stack, &result);
-}
-
-void mul_op() {
-    Element a, b, result;
-
-    stack_pop(stack, &a);
-    stack_pop(stack, &b);
-
-    result.etype = ELEMENT_NUMBER;
-    result.u.number = b.u.number * a.u.number;
-
-    stack_push(stack, &result);
-}
-
-void div_op() {
-    Element a, b, result;
-
-    stack_pop(stack, &a);
-    stack_pop(stack, &b);
-
-    result.etype = ELEMENT_NUMBER;
-    result.u.number = (int)(b.u.number / a.u.number);
-
-    stack_push(stack, &result);
-}
-
-void def_op() {
-    Element name, val;
-
-    stack_pop(stack, &val);
-    stack_pop(stack, &name);
-
-    assert(name.etype == ELEMENT_LITERAL_NAME);
-
-    dict_put(dict, name.u.name, &val);
-}
-
 void token_to_element(Token *token, Element *e) {
     switch (token->ltype) {
     case NUMBER:
@@ -253,6 +193,35 @@ void eval() {
             printf("unknown token type: %d\n", token.ltype);
         }
     } while (token.ltype != END_OF_FILE);
+}
+
+#define define_bin_op(fnname, exp) \
+  void fnname() { \
+    Element a, b, result; \
+    \
+    stack_pop(stack, &a); \
+    stack_pop(stack, &b); \
+    \
+    result.etype = ELEMENT_NUMBER; \
+    result.u.number = (exp); \
+    \
+    stack_push(stack, &result); \
+  }
+
+define_bin_op(add_op, b.u.number + a.u.number);
+define_bin_op(sub_op, b.u.number - a.u.number);
+define_bin_op(mul_op, b.u.number * a.u.number);
+define_bin_op(div_op, (int)(b.u.number / a.u.number));
+
+void def_op() {
+    Element name, val;
+
+    stack_pop(stack, &val);
+    stack_pop(stack, &name);
+
+    assert(name.etype == ELEMENT_LITERAL_NAME);
+
+    dict_put(dict, name.u.name, &val);
 }
 
 void register_op(char *name, void (*cfunc)()) {

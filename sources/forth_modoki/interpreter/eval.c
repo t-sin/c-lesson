@@ -128,17 +128,18 @@ int compile_exec_array(Element *out_elem) {
 
         case CLOSE_CURLY:
             elem_array = (struct ElementArray*)malloc(sizeof(ElementArray) + sizeof(Element) * idx);
-            out_elem->etype = ELEMENT_EXEC_ARRAY;
             elem_array->len = idx;
             memcpy(elem_array->elements, array, sizeof(Element) * idx);
+
+            out_elem->etype = ELEMENT_EXEC_ARRAY;
             out_elem->u.byte_codes = elem_array;
-            return ch;
+            return EOF;
 
         case END_OF_FILE:
             printf("Unexpected EOF\n");
             break;
         }
-    } while (ch != EOF);
+    } while (token.ltype != CLOSE_CURLY);
 
     return ch;
 }

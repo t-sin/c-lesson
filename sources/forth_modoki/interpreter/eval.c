@@ -552,7 +552,7 @@ static void test_eval_invoke_exec_array_with_a_number() {
 }
 
 static void test_eval_invoke_nested_exec_array() {
-    char *input = "/name1 { 1 } def /name2 { name1 2 } name2";
+    char *input = "/name1 { 1 } def /name2 { name1 2 } def name2";
     Element expected1 = {ELEMENT_NUMBER, {2}};
     Element expected2 = {ELEMENT_NUMBER, {1}};
 

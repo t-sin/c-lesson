@@ -489,8 +489,8 @@ static void test_eval_two_exec_array() {
     char *input = "{1} {2}";
     int expected_type = ELEMENT_EXEC_ARRAY;
     int expected_exec_array_len = 1;
-    Element expected_exec_array1_val = {ELEMENT_NUMBER, {1}};
-    Element expected_exec_array2_val = {ELEMENT_NUMBER, {2}};
+    Element expected_exec_array1_val = {ELEMENT_NUMBER, {2}};
+    Element expected_exec_array2_val = {ELEMENT_NUMBER, {1}};
 
     eval_with_init(input);
 

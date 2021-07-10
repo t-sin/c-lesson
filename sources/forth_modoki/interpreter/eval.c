@@ -213,6 +213,14 @@ define_bin_op(sub_op, b.u.number - a.u.number);
 define_bin_op(mul_op, b.u.number * a.u.number);
 define_bin_op(div_op, (int)(b.u.number / a.u.number));
 
+define_bin_op(eq_op, element_equal(&a, &b));
+define_bin_op(neq_op, !element_equal(&a, &b));
+
+define_bin_op(gt_op, b.u.number > a.u.number);
+define_bin_op(ge_op, b.u.number >= a.u.number);
+define_bin_op(lt_op, b.u.number < a.u.number);
+define_bin_op(le_op, b.u.number <= a.u.number);
+
 void def_op() {
     Element name, val;
 
@@ -237,6 +245,14 @@ void register_primitives() {
     register_op("mul", mul_op);
     register_op("div", div_op);
     register_op("def", def_op);
+
+    register_op("eq", eq_op);
+    register_op("neq", neq_op);
+
+    register_op("gt", gt_op);
+    register_op("ge", ge_op);
+    register_op("lt", lt_op);
+    register_op("le", le_op);
 }
 
 void eval_with_init(char *input) {

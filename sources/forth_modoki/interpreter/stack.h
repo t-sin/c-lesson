@@ -17,3 +17,4 @@ int stack_push(Stack *stack, Element *e);
 int stack_pop(Stack *stack, Element *out_elem);
 
 void stack_print_all(Stack *stack);
+int stack_is_empty(Stack *stack);

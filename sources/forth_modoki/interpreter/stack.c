@@ -53,6 +53,10 @@ void stack_print_all(Stack *stack) {
     }
 }
 
+int stack_is_empty(Stack *stack) {
+    return stack->top == 0;
+}
+
 void test_initialize_stack() {
     int expected_top = 0;
 

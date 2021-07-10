@@ -232,6 +232,30 @@ void def_op() {
     dict_put(dict, name.u.name, &val);
 }
 
+void pop_op() {
+    Element val;
+    stack_pop(stack, &val);
+}
+
+void exch_op() {
+    Element a, b;
+
+    stack_pop(stack, &a);
+    stack_pop(stack, &b);
+
+    stack_push(stack, &a);
+    stack_push(stack, &b);
+}
+
+void dup_op() {
+    Element e;
+
+    stack_pop(stack, &e);
+
+    stack_push(stack, &e);
+    stack_push(stack, &e);
+}
+
 void register_op(char *name, void (*cfunc)()) {
     Element elem;
     elem.etype = ELEMENT_C_FUNC;
@@ -253,6 +277,10 @@ void register_primitives() {
     register_op("ge", ge_op);
     register_op("lt", lt_op);
     register_op("le", le_op);
+
+    register_op("pop", pop_op);
+    register_op("exch", exch_op);
+    register_op("dup", dup_op);
 }
 
 void eval_with_init(char *input) {
@@ -554,6 +582,53 @@ static void test_eval_le_returns_false() {
     assert(stack_is_empty(stack));
 }
 
+static void test_eval_pop() {
+    char *input = "1 2 pop";
+    Element expected = {ELEMENT_NUMBER, {1}};
+
+    eval_with_init(input);
+
+    Element elem;
+
+    stack_pop(stack, &elem);
+    assert_element_equal(&elem, &expected);
+
+    assert(stack_is_empty(stack));
+}
+
+static void test_eval_exch() {
+    char *input = "1 10 exch";
+    Element expected1 = {ELEMENT_NUMBER, {1}};
+    Element expected2 = {ELEMENT_NUMBER, {10}};
+
+    eval_with_init(input);
+
+    Element elem;
+
+    stack_pop(stack, &elem);
+    assert_element_equal(&elem, &expected1);
+    stack_pop(stack, &elem);
+    assert_element_equal(&elem, &expected2);
+
+    assert(stack_is_empty(stack));
+}
+
+static void test_eval_dup() {
+    char *input = "42 dup";
+    Element expected = {ELEMENT_NUMBER, {42}};
+
+    eval_with_init(input);
+
+    Element elem;
+
+    stack_pop(stack, &elem);
+    assert_element_equal(&elem, &expected);
+    stack_pop(stack, &elem);
+    assert_element_equal(&elem, &expected);
+
+    assert(stack_is_empty(stack));
+}
+
 static void test_eval_exec_array_with_a_number() {
     char *input = "{ 42 }";
     int expected_type = ELEMENT_EXEC_ARRAY;
@@ -753,6 +828,10 @@ static void test_all() {
     test_eval_lt_returns_false();
     test_eval_le_returns_true();
     test_eval_le_returns_false();
+
+    test_eval_pop();
+    test_eval_exch();
+    test_eval_dup();
 
     test_eval_exec_array_with_a_number();
     test_eval_exec_array_with_a_literal_name();

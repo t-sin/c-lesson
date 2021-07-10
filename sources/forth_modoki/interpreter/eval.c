@@ -264,6 +264,10 @@ void eval_with_init(char *input) {
     eval();
 }
 
+static void assert_element_equal(Element *actual, Element *expected) {
+    assert(element_equal(actual, expected));
+}
+
 static void test_eval_num_one() {
     char *input = "123";
     Element expected = {ELEMENT_NUMBER, {123}};
@@ -274,7 +278,7 @@ static void test_eval_num_one() {
     int stack_ret = stack_pop(stack, &elem);
 
     assert(stack_is_empty(stack));
-    assert(element_equal(&elem, &expected));
+    assert_element_equal(&elem, &expected);
 }
 
 static void test_eval_num_two() {
@@ -287,10 +291,10 @@ static void test_eval_num_two() {
     Element elem1, elem2;
 
     stack_pop(stack, &elem1);
-    assert(element_equal(&elem1, &expected1));
+    assert_element_equal(&elem1, &expected1);
 
     stack_pop(stack, &elem2);
-    assert(element_equal(&elem2, &expected2));
+    assert_element_equal(&elem2, &expected2);
 
     assert(stack_is_empty(stack));
 }
@@ -305,7 +309,7 @@ static void test_eval_num_add() {
     Element elem;
 
     stack_pop(stack, &elem);
-    assert(element_equal(&elem, &expected));
+    assert_element_equal(&elem, &expected);
 
     assert(stack_is_empty(stack));
 }
@@ -319,7 +323,7 @@ static void test_eval_complex_add() {
     Element elem;
 
     stack_pop(stack, &elem);
-    assert(element_equal(&elem, &expected));
+    assert_element_equal(&elem, &expected);
 
     assert(stack_is_empty(stack));
 }
@@ -333,7 +337,7 @@ static void test_eval_sub() {
     Element elem;
 
     stack_pop(stack, &elem);
-    assert(element_equal(&elem, &expected));
+    assert_element_equal(&elem, &expected);
 
     assert(stack_is_empty(stack));
 }
@@ -347,7 +351,7 @@ static void test_eval_mul() {
     Element elem;
 
     stack_pop(stack, &elem);
-    assert(element_equal(&elem, &expected));
+    assert_element_equal(&elem, &expected);
 
     assert(stack_is_empty(stack));
 }
@@ -361,7 +365,7 @@ static void test_eval_div() {
     Element elem;
 
     stack_pop(stack, &elem);
-    assert(element_equal(&elem, &expected));
+    assert_element_equal(&elem, &expected);
 
     assert(stack_is_empty(stack));
 }
@@ -375,7 +379,7 @@ static void test_eval_literal_name() {
     Element elem;
 
     stack_pop(stack, &elem);
-    assert(element_equal(&elem, &expected));
+    assert_element_equal(&elem, &expected);
 
     assert(stack_is_empty(stack));
 }
@@ -389,7 +393,7 @@ static void test_eval_def() {
     Element elem;
 
     stack_pop(stack, &elem);
-    assert(element_equal(&elem, &expected));
+    assert_element_equal(&elem, &expected);
 
     assert(stack_is_empty(stack));
 }
@@ -563,7 +567,7 @@ static void test_eval_exec_array_with_a_number() {
     stack_pop(stack, &elem);
     assert(elem.etype == expected_type);
     assert(elem.u.byte_codes->len = expected_exec_array_len);
-    assert(element_equal(&elem.u.byte_codes->elements[0], &expected_exec_array_val));
+    assert_element_equal(&elem.u.byte_codes->elements[0], &expected_exec_array_val);
 
     assert(stack_is_empty(stack));
 }
@@ -581,7 +585,7 @@ static void test_eval_exec_array_with_a_literal_name() {
     stack_pop(stack, &elem);
     assert(elem.etype == expected_type);
     assert(elem.u.byte_codes->len = expected_exec_array_len);
-    assert(element_equal(&elem.u.byte_codes->elements[0], &expected_exec_array_val));
+    assert_element_equal(&elem.u.byte_codes->elements[0], &expected_exec_array_val);
 
     assert(stack_is_empty(stack));
 }
@@ -599,7 +603,7 @@ static void test_eval_exec_array_with_a_executable_name() {
     stack_pop(stack, &elem);
     assert(elem.etype == expected_type);
     assert(elem.u.byte_codes->len = expected_exec_array_len);
-    assert(element_equal(&elem.u.byte_codes->elements[0], &expected_exec_array_val));
+    assert_element_equal(&elem.u.byte_codes->elements[0], &expected_exec_array_val);
 
     assert(stack_is_empty(stack));
 }
@@ -618,8 +622,8 @@ static void test_eval_exec_array_with_two_elements() {
     stack_pop(stack, &elem);
     assert(elem.etype == expected_type);
     assert(elem.u.byte_codes->len = expected_exec_array_len);
-    assert(element_equal(&elem.u.byte_codes->elements[0], &expected_exec_array_val1));
-    assert(element_equal(&elem.u.byte_codes->elements[1], &expected_exec_array_val2));
+    assert_element_equal(&elem.u.byte_codes->elements[0], &expected_exec_array_val1);
+    assert_element_equal(&elem.u.byte_codes->elements[1], &expected_exec_array_val2);
 
     assert(stack_is_empty(stack));
 }
@@ -638,12 +642,12 @@ static void test_eval_two_exec_array() {
     stack_pop(stack, &elem);
     assert(elem.etype == expected_type);
     assert(elem.u.byte_codes->len = expected_exec_array_len);
-    assert(element_equal(&elem.u.byte_codes->elements[0], &expected_exec_array1_val));
+    assert_element_equal(&elem.u.byte_codes->elements[0], &expected_exec_array1_val);
 
     stack_pop(stack, &elem);
     assert(elem.etype == expected_type);
     assert(elem.u.byte_codes->len = expected_exec_array_len);
-    assert(element_equal(&elem.u.byte_codes->elements[0], &expected_exec_array2_val));
+    assert_element_equal(&elem.u.byte_codes->elements[0], &expected_exec_array2_val);
 
     assert(stack_is_empty(stack));
 }
@@ -666,13 +670,13 @@ static void test_eval_nested_exec_array() {
 
     assert(elem.etype == expected_type);
     assert(elem.u.byte_codes->len = expected_exec_array1_len);
-    assert(element_equal(&elem.u.byte_codes->elements[0], &expected_exec_array_val1));
-    assert(element_equal(&elem.u.byte_codes->elements[2], &expected_exec_array_val3));
+    assert_element_equal(&elem.u.byte_codes->elements[0], &expected_exec_array_val1);
+    assert_element_equal(&elem.u.byte_codes->elements[2], &expected_exec_array_val3);
 
     Element *arr = &elem.u.byte_codes->elements[1];
     assert(arr->etype == expected_type);
     assert(arr->u.byte_codes->len = expected_exec_array2_len);
-    assert(element_equal(&arr->u.byte_codes->elements[0], &expected_exec_array2_val));
+    assert_element_equal(&arr->u.byte_codes->elements[0], &expected_exec_array2_val);
 }
 
 static void test_eval_invoke_exec_array_with_a_number() {
@@ -684,7 +688,7 @@ static void test_eval_invoke_exec_array_with_a_number() {
     Element elem;
 
     stack_pop(stack, &elem);
-    assert(element_equal(&elem, &expected));
+    assert_element_equal(&elem, &expected);
 
     assert(stack_is_empty(stack));
 }
@@ -699,10 +703,10 @@ static void test_eval_invoke_nested_exec_array() {
     Element elem1, elem2;
 
     stack_pop(stack, &elem1);
-    assert(element_equal(&elem1, &expected1));
+    assert_element_equal(&elem1, &expected1);
 
     stack_pop(stack, &elem2);
-    assert(element_equal(&elem2, &expected2));
+    assert_element_equal(&elem2, &expected2);
 
     assert(stack_is_empty(stack));
 }
@@ -721,7 +725,7 @@ static void test_eval_invoke_nested_exec_array2() {
         Element expected = {ELEMENT_NUMBER, {expected_nums[idx]}};
         stack_ret = stack_pop(stack, &elem);
         assert(stack_ret == idx);
-        assert(element_equal(&elem, &expected));
+        assert_element_equal(&elem, &expected);
     }
 
     assert(stack_is_empty(stack));

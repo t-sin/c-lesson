@@ -394,6 +394,58 @@ static void test_eval_def() {
     assert(stack_is_empty(stack));
 }
 
+static void test_eval_eq_returns_true() {
+    char *input = "42 42 eq";
+
+    eval_with_init(input);
+
+    Element elem;
+
+    stack_pop(stack, &elem);
+    assert(element_is_true(&elem));
+
+    assert(stack_is_empty(stack));
+}
+
+static void test_eval_eq_returns_false() {
+    char *input = "42 43 eq";
+
+    eval_with_init(input);
+
+    Element elem;
+
+    stack_pop(stack, &elem);
+    assert(element_is_false(&elem));
+
+    assert(stack_is_empty(stack));
+}
+
+static void test_eval_neq_returns_true() {
+    char *input = "42 43 neq";
+
+    eval_with_init(input);
+
+    Element elem;
+
+    stack_pop(stack, &elem);
+    assert(element_is_true(&elem));
+
+    assert(stack_is_empty(stack));
+}
+
+static void test_eval_neq_returns_false() {
+    char *input = "42 42 neq";
+
+    eval_with_init(input);
+
+    Element elem;
+
+    stack_pop(stack, &elem);
+    assert(element_is_false(&elem));
+
+    assert(stack_is_empty(stack));
+}
+
 static void test_eval_exec_array_with_a_number() {
     char *input = "{ 42 }";
     int expected_type = ELEMENT_EXEC_ARRAY;
@@ -579,6 +631,11 @@ static void test_all() {
 
     test_eval_literal_name();
     test_eval_def();
+
+    test_eval_eq_returns_true();
+    test_eval_eq_returns_false();
+    test_eval_neq_returns_true();
+    test_eval_neq_returns_false();
 
     test_eval_exec_array_with_a_number();
     test_eval_exec_array_with_a_literal_name();

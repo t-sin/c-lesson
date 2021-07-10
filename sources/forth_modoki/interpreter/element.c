@@ -89,3 +89,17 @@ int element_equal(Element *a, Element *b) {
         return 1;
     }
 }
+
+int element_is_true(Element *e) {
+    if (e->etype == ELEMENT_NUMBER) {
+        return e->u.number == 1;
+    }
+    return 0;
+}
+
+int element_is_false(Element *e) {
+    if (e->etype == ELEMENT_NUMBER) {
+        return e->u.number == 0;
+    }
+    return 0;
+}

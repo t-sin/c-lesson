@@ -232,6 +232,10 @@ void def_op() {
     dict_put(dict, name.u.name, &val);
 }
 
+void pstack_op() {
+    stack_print_all(stack);
+}
+
 void pop_op() {
     Element val;
     stack_pop(stack, &val);
@@ -277,6 +281,8 @@ void register_primitives() {
     register_op("ge", ge_op);
     register_op("lt", lt_op);
     register_op("le", le_op);
+
+    register_op("pstack", pstack_op);
 
     register_op("pop", pop_op);
     register_op("exch", exch_op);

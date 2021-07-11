@@ -391,74 +391,51 @@ static void test_eval_num_two() {
 }
 
 
-static void test_eval_num_add() {
-    char *input = "1 2 add";
-    Element expected = {ELEMENT_NUMBER, {3}};
+static void verify_binary_numeral_op(char *input, int expected) {
+    Element expected_elem = {ELEMENT_NUMBER, {expected}};
 
     eval_with_init(input);
 
     Element elem;
-
     stack_pop(stack, &elem);
-    assert_element_equal(&elem, &expected);
+    assert_element_equal(&elem, &expected_elem);
 
     assert(stack_is_empty(stack));
+}
+
+static void test_eval_num_add() {
+    char *input = "1 2 add";
+    int expected = 3;
+
+    verify_binary_numeral_op(input, expected);
 }
 
 static void test_eval_complex_add() {
     char *input = "1 2 3 add add 4 5 6 7 8 9 add add add add add add";
-    Element expected = {ELEMENT_NUMBER, {45}};
+    int expected = 45;
 
-    eval_with_init(input);
-
-    Element elem;
-
-    stack_pop(stack, &elem);
-    assert_element_equal(&elem, &expected);
-
-    assert(stack_is_empty(stack));
+    verify_binary_numeral_op(input, expected);
 }
 
 static void test_eval_sub() {
     char *input = "5 3 sub";
-    Element expected = {ELEMENT_NUMBER, {2}};
+    int expected = 2;
 
-    eval_with_init(input);
-
-    Element elem;
-
-    stack_pop(stack, &elem);
-    assert_element_equal(&elem, &expected);
-
-    assert(stack_is_empty(stack));
+    verify_binary_numeral_op(input, expected);
 }
 
 static void test_eval_mul() {
     char *input = "5 3 mul";
-    Element expected = {ELEMENT_NUMBER, {15}};
+    int expected = 15;
 
-    eval_with_init(input);
-
-    Element elem;
-
-    stack_pop(stack, &elem);
-    assert_element_equal(&elem, &expected);
-
-    assert(stack_is_empty(stack));
+    verify_binary_numeral_op(input, expected);
 }
 
 static void test_eval_div() {
     char *input = "7 3 div";
-    Element expected = {ELEMENT_NUMBER, {2}};
+    int expected = 2;
 
-    eval_with_init(input);
-
-    Element elem;
-
-    stack_pop(stack, &elem);
-    assert_element_equal(&elem, &expected);
-
-    assert(stack_is_empty(stack));
+    verify_binary_numeral_op(input, expected);
 }
 
 static void test_eval_literal_name() {

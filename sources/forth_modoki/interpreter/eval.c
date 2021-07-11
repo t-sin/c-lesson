@@ -345,6 +345,16 @@ void eval_with_init(char *input) {
     eval();
 }
 
+void initialize_eval() {
+    stack = stack_init();
+    dict = dict_init();
+    register_primitives();
+}
+
+void print_stack() {
+    stack_print_all(stack);
+}
+
 static void assert_element_equal(Element *actual, Element *expected) {
     assert(element_equal(actual, expected));
 }
@@ -927,21 +937,6 @@ static void test_all() {
 #ifdef EVAL_TEST
 int main() {
     test_all();
-    return 0;
-}
-#else
-int main() {
-    dict = dict_init();
-    register_primitives();
-
-    cl_getc_set_src("/abc 42 def abc abc add");
-    stack = stack_init();
-    eval();
-
-    Element elem;
-    stack_pop(stack, &elem);
-    print_element(&elem);
-
     return 0;
 }
 #endif

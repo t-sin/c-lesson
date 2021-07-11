@@ -465,160 +465,91 @@ static void test_eval_div() {
     verify_binary_numeral_op(input, expected);
 }
 
+#define TRUE 1
+#define FALSE 0
+
 static void test_eval_eq_returns_true() {
     char *input = "42 42 eq";
+    int expected = TRUE;
 
-    eval_with_init(input);
-
-    Element elem;
-
-    stack_pop(stack, &elem);
-    assert(element_is_true(&elem));
-
-    assert(stack_is_empty(stack));
+    verify_binary_numeral_op(input, expected);
 }
 
 static void test_eval_eq_returns_false() {
     char *input = "42 43 eq";
+    int expected = FALSE;
 
-    eval_with_init(input);
-
-    Element elem;
-
-    stack_pop(stack, &elem);
-    assert(element_is_false(&elem));
-
-    assert(stack_is_empty(stack));
+    verify_binary_numeral_op(input, expected);
 }
 
 static void test_eval_neq_returns_true() {
     char *input = "42 43 neq";
+    int expected = TRUE;
 
-    eval_with_init(input);
-
-    Element elem;
-
-    stack_pop(stack, &elem);
-    assert(element_is_true(&elem));
-
-    assert(stack_is_empty(stack));
+    verify_binary_numeral_op(input, expected);
 }
 
 static void test_eval_neq_returns_false() {
     char *input = "42 42 neq";
+    int expected = FALSE;
 
-    eval_with_init(input);
-
-    Element elem;
-
-    stack_pop(stack, &elem);
-    assert(element_is_false(&elem));
-
-    assert(stack_is_empty(stack));
+    verify_binary_numeral_op(input, expected);
 }
 
 static void test_eval_gt_returns_true() {
     char *input = "43 42 gt";
+    int expected = TRUE;
 
-    eval_with_init(input);
-
-    Element elem;
-
-    stack_pop(stack, &elem);
-    assert(element_is_true(&elem));
-
-    assert(stack_is_empty(stack));
+    verify_binary_numeral_op(input, expected);
 }
 
 static void test_eval_gt_returns_false() {
     char *input = "42 42 gt";
+    int expected = FALSE;
 
-    eval_with_init(input);
-
-    Element elem;
-
-    stack_pop(stack, &elem);
-    assert(element_is_false(&elem));
-
-    assert(stack_is_empty(stack));
+    verify_binary_numeral_op(input, expected);
 }
 
 static void test_eval_ge_returns_true() {
     char *input = "42 42 ge";
+    int expected = TRUE;
 
-    eval_with_init(input);
-
-    Element elem;
-
-    stack_pop(stack, &elem);
-    assert(element_is_true(&elem));
-
-    assert(stack_is_empty(stack));
+    verify_binary_numeral_op(input, expected);
 }
 
 static void test_eval_ge_returns_false() {
     char *input = "41 42 ge";
+    int expected = FALSE;
 
-    eval_with_init(input);
-
-    Element elem;
-
-    stack_pop(stack, &elem);
-    assert(element_is_false(&elem));
-
-    assert(stack_is_empty(stack));
+    verify_binary_numeral_op(input, expected);
 }
 
 static void test_eval_lt_returns_true() {
     char *input = "42 43 lt";
+    int expected = TRUE;
 
-    eval_with_init(input);
-
-    Element elem;
-
-    stack_pop(stack, &elem);
-    assert(element_is_true(&elem));
-
-    assert(stack_is_empty(stack));
+    verify_binary_numeral_op(input, expected);
 }
 
 static void test_eval_lt_returns_false() {
     char *input = "42 42 lt";
+    int expected = FALSE;
 
-    eval_with_init(input);
-
-    Element elem;
-
-    stack_pop(stack, &elem);
-    assert(element_is_false(&elem));
-
-    assert(stack_is_empty(stack));
+    verify_binary_numeral_op(input, expected);
 }
 
 static void test_eval_le_returns_true() {
     char *input = "42 42 le";
+    int expected = TRUE;
 
-    eval_with_init(input);
-
-    Element elem;
-
-    stack_pop(stack, &elem);
-    assert(element_is_true(&elem));
-
-    assert(stack_is_empty(stack));
+    verify_binary_numeral_op(input, expected);
 }
 
 static void test_eval_le_returns_false() {
     char *input = "42 41 le";
+    int expected = FALSE;
 
-    eval_with_init(input);
-
-    Element elem;
-
-    stack_pop(stack, &elem);
-    assert(element_is_false(&elem));
-
-    assert(stack_is_empty(stack));
+    verify_binary_numeral_op(input, expected);
 }
 
 static void test_eval_pop() {

@@ -6,6 +6,8 @@
 #include "element.h"
 #include "stack.h"
 
+//// stacks and its operations
+
 #define STACK_SIZE 1024
 
 struct Stack {
@@ -78,6 +80,8 @@ void stack_print_all(Stack *stack) {
 int stack_is_empty(Stack *stack) {
     return stack->top == 0;
 }
+
+//// unit tests
 
 void test_initialize_stack() {
     int expected_top = 0;

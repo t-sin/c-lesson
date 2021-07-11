@@ -16,6 +16,8 @@
 static Stack *stack;
 static Dict *dict;
 
+//// utilities
+
 void token_to_element(Token *token, Element *e) {
     switch (token->ltype) {
     case NUMBER:
@@ -38,6 +40,8 @@ void token_to_element(Token *token, Element *e) {
         print_token(token);
     }
 }
+
+//// byte code compiler
 
 #define MAX_NAME_OP_NUMBERS 256
 
@@ -84,6 +88,8 @@ int compile_exec_array(Element *out_elem) {
     return ch;
 }
 
+//// byte code interpreter
+
 void eval_exec_array(ElementArray *elems) {
     for (int i = 0; i < elems->len; i++) {
         Element elem = elems->elements[i];
@@ -129,6 +135,8 @@ void eval_exec_array(ElementArray *elems) {
         }
     }
 }
+
+//// interpreter
 
 void eval() {
     Token token;
@@ -194,6 +202,8 @@ void eval() {
         }
     } while (token.ltype != END_OF_FILE);
 }
+
+//// built-in operators
 
 #define define_bin_op(fnname, exp) \
   void fnname() { \
@@ -305,6 +315,8 @@ void roll_op() {
     }
 }
 
+//// initilizing codes
+
 void register_op(char *name, void (*cfunc)()) {
     Element elem;
     elem.etype = ELEMENT_C_FUNC;
@@ -355,6 +367,10 @@ void print_stack() {
     stack_print_all(stack);
 }
 
+//// unit tests
+
+// basic evaluation
+
 static void assert_element_equal(Element *actual, Element *expected) {
     assert(element_equal(actual, expected));
 }
@@ -404,6 +420,8 @@ static void test_eval_literal_name() {
     assert(stack_is_empty(stack));
 }
 
+// definiing operator
+
 static void test_eval_def() {
     char *input = "/name 42 def name";
     Element expected = {ELEMENT_NUMBER, {42}};
@@ -429,6 +447,8 @@ static void verify_binary_numeral_op(char *input, int expected) {
 
     assert(stack_is_empty(stack));
 }
+
+// binary numeral operator
 
 static void test_eval_num_add() {
     char *input = "1 2 add";
@@ -464,6 +484,8 @@ static void test_eval_div() {
 
     verify_binary_numeral_op(input, expected);
 }
+
+// numeral predicates
 
 #define TRUE 1
 #define FALSE 0
@@ -552,6 +574,8 @@ static void test_eval_le_returns_false() {
     verify_binary_numeral_op(input, expected);
 }
 
+// stack operators
+
 static void test_eval_pop() {
     char *input = "1 2 pop";
     Element expected = {ELEMENT_NUMBER, {1}};
@@ -621,6 +645,8 @@ static void test_eval_roll() {
 
     assert(stack_length(stack) == expected_stack_length);
 }
+
+// executable arrays
 
 static void test_eval_exec_array_with_a_number() {
     char *input = "{ 42 }";

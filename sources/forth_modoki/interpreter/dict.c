@@ -7,6 +7,8 @@
 #include "dict.h"
 #include "util.h"
 
+//// hash function
+
 int hash(char *str) {
    unsigned int val = 0;
    while(*str) {
@@ -14,6 +16,8 @@ int hash(char *str) {
    }
    return (int)(val%1024);
 }
+
+//// dictionaries and its operations
 
 typedef struct DictEntry {
     char *key;
@@ -102,6 +106,8 @@ void dict_print_all(Dict *dict) {
         }
     }
 }
+
+//// unit tests
 
 static void test_dict_put_one_integer() {
     Element input = {ELEMENT_NUMBER, {42}};

@@ -9,6 +9,8 @@
 
 #define NAME_SIZE 256
 
+// character predicates
+
 int is_eof(int c) {
     return c == EOF;
 }
@@ -47,6 +49,8 @@ int str2int(char *str, int length) {
     }
     return val;
 }
+
+//// parser
 
 int parse_one(int prev_ch, Token *out_token) {
     int pos = 0;
@@ -128,6 +132,8 @@ void parser_print_all() {
         print_token(&token);
     }while(ch != EOF);
 }
+
+//// unit tests
 
 static void test_parse_one_number() {
     char *input = "123";

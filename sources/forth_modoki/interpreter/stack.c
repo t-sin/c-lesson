@@ -203,7 +203,7 @@ void test_stack_peek_third_element() {
         {ELEMENT_NUMBER, {3}},
         {ELEMENT_NUMBER, {4}},
     };
-    int input_nth = 3;
+    int input_nth = 2;
     int expected_return = 0;
     Element expected_elem = {ELEMENT_NUMBER, {3}};
 

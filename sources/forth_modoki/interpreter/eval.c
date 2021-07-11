@@ -390,6 +390,33 @@ static void test_eval_num_two() {
     assert(stack_is_empty(stack));
 }
 
+static void test_eval_literal_name() {
+    char *input = "/foo";
+    Element expected = {ELEMENT_LITERAL_NAME, {name: "foo"}};
+
+    eval_with_init(input);
+
+    Element elem;
+
+    stack_pop(stack, &elem);
+    assert_element_equal(&elem, &expected);
+
+    assert(stack_is_empty(stack));
+}
+
+static void test_eval_def() {
+    char *input = "/name 42 def name";
+    Element expected = {ELEMENT_NUMBER, {42}};
+
+    eval_with_init(input);
+
+    Element elem;
+
+    stack_pop(stack, &elem);
+    assert_element_equal(&elem, &expected);
+
+    assert(stack_is_empty(stack));
+}
 
 static void verify_binary_numeral_op(char *input, int expected) {
     Element expected_elem = {ELEMENT_NUMBER, {expected}};
@@ -436,34 +463,6 @@ static void test_eval_div() {
     int expected = 2;
 
     verify_binary_numeral_op(input, expected);
-}
-
-static void test_eval_literal_name() {
-    char *input = "/foo";
-    Element expected = {ELEMENT_LITERAL_NAME, {name: "foo"}};
-
-    eval_with_init(input);
-
-    Element elem;
-
-    stack_pop(stack, &elem);
-    assert_element_equal(&elem, &expected);
-
-    assert(stack_is_empty(stack));
-}
-
-static void test_eval_def() {
-    char *input = "/name 42 def name";
-    Element expected = {ELEMENT_NUMBER, {42}};
-
-    eval_with_init(input);
-
-    Element elem;
-
-    stack_pop(stack, &elem);
-    assert_element_equal(&elem, &expected);
-
-    assert(stack_is_empty(stack));
 }
 
 static void test_eval_eq_returns_true() {

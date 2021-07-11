@@ -21,6 +21,10 @@ Stack* stack_init() {
     return stack;
 }
 
+int stack_length(Stack *stack) {
+    return stack->top;
+}
+
 int stack_push(Stack *stack, Element *e) {
     if (stack->top < STACK_SIZE) {
 
@@ -43,6 +47,15 @@ int stack_pop(Stack *stack, Element *out_elem) {
     out_elem->u = stack->array[stack->top].u;
 
     return stack->top;
+}
+
+int stack_peek(Stack *stack, int n, Element *out_elem) {
+    if (n >= stack->top) {
+        STACK_OUT_OF_RANGE;
+    }
+
+    copy_element(out_elem, &stack->array[stack->top - 1 - n]);
+    return 0;
 }
 
 void stack_print_all(Stack *stack) {
@@ -164,6 +177,47 @@ void test_push_to_full_stack() {
     actual_return = stack_push(stack, &e);
     assert(actual_return == expected_return);
     assert(stack->top == expected_top);
+}
+
+void test_stack_peek_first_element() {
+    Element input = {ELEMENT_NUMBER, {42}};
+    int input_nth = 0;
+    int expected_return = 0;
+    Element expected_elem = {ELEMENT_NUMBER, {42}};
+
+    Stack *stack = stack_init();
+    stack_push(stack, &input);
+
+    Element output;
+    int ret = stack_peek(stack, input_nth, &output);
+
+    assert(ret == 0);
+    assert(stack_length(stack) == 1);
+    assert(element_equal(&output, &expected_elem));
+}
+
+void test_stack_peek_third_element() {
+    Element input[4] = {
+        {ELEMENT_NUMBER, {1}},
+        {ELEMENT_NUMBER, {2}},
+        {ELEMENT_NUMBER, {3}},
+        {ELEMENT_NUMBER, {4}},
+    };
+    int input_nth = 3;
+    int expected_return = 0;
+    Element expected_elem = {ELEMENT_NUMBER, {3}};
+
+    Stack *stack = stack_init();
+    for (int i = 0; i < sizeof(input) / sizeof(input[0]); i++) {
+        stack_push(stack, &input[i]);
+    }
+
+    Element output;
+    int ret = stack_peek(stack, input_nth, &output);
+
+    assert(ret == 0);
+    assert(stack_length(stack) == 4);
+    assert(element_equal(&output, &expected_elem));
 }
 
 void test_all() {

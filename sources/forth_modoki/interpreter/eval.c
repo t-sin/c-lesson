@@ -828,11 +828,14 @@ static void test_eval_invoke_nested_exec_array2() {
 static void test_all() {
     test_eval_num_one();
     test_eval_num_two();
-    test_eval_num_add();
-    test_eval_complex_add();
-
     test_eval_literal_name();
     test_eval_def();
+
+    test_eval_num_add();
+    test_eval_complex_add();
+    test_eval_sub();
+    test_eval_mul();
+    test_eval_div();
 
     test_eval_eq_returns_true();
     test_eval_eq_returns_false();

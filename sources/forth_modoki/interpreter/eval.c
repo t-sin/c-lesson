@@ -270,6 +270,41 @@ void index_op() {
     stack_push(stack, &out);
 }
 
+void roll_op() {
+    Element n, j;
+    stack_pop(stack, &j);
+    stack_pop(stack, &n);
+
+    int length = n.u.number;
+    int rotn = j.u.number;
+    rotn = rotn % length;
+
+    int source_idx = length - 1;
+    int dest_idx = source_idx - rotn;
+
+    // 前のコピー先を取っておいて、それを次の位置に書き込む。
+    // roll的にはrotnが大きくなるほど右に回転する (正方向が右) が
+    // stack_peek等のnはスタックトップから深さ方向にいく (正方向が左) ので
+    // 位置計算がじゃっかんややこしいことになっている。注意。
+    Element prev_dest;
+    stack_peek(stack, source_idx, &prev_dest);
+
+    for (int i = 0; i < length; i++) {
+        //printf("%d -> %d, ", source_idx, dest_idx);
+
+        Element tmp;
+        copy_element(&tmp, &prev_dest);
+        stack_peek(stack, dest_idx, &prev_dest);
+        stack_set(stack, dest_idx, &tmp);
+
+        source_idx = dest_idx;
+        dest_idx = source_idx - rotn % length;
+        if (dest_idx < 0) {
+            dest_idx = length + dest_idx;
+        }
+    }
+}
+
 void register_op(char *name, void (*cfunc)()) {
     Element elem;
     elem.etype = ELEMENT_C_FUNC;
@@ -298,6 +333,7 @@ void register_primitives() {
     register_op("exch", exch_op);
     register_op("dup", dup_op);
     register_op("index", index_op);
+    register_op("roll", roll_op);
 }
 
 void eval_with_init(char *input) {
@@ -660,6 +696,15 @@ static void test_eval_index() {
     assert_element_equal(&elem, &expected_top);
 }
 
+static void test_eval_roll() {
+    char *input = "1 2 3 4 5 6 7 4 3 roll";
+    int expected_stack_length = 7;
+
+    eval_with_init(input);
+
+    assert(stack_length(stack) == expected_stack_length);
+}
+
 static void test_eval_exec_array_with_a_number() {
     char *input = "{ 42 }";
     int expected_type = ELEMENT_EXEC_ARRAY;
@@ -864,6 +909,7 @@ static void test_all() {
     test_eval_exch();
     test_eval_dup();
     test_eval_index();
+    test_eval_roll();
 
     test_eval_exec_array_with_a_number();
     test_eval_exec_array_with_a_literal_name();

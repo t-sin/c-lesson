@@ -23,5 +23,9 @@ int stack_pop(Stack *stack, Element *out_elem);
 // nがスタックの深さより大きかったらSTACK_OUT_OF_RANGEを返す。
 int stack_peek(Stack *stack, int n, Element *out_elem);
 
+// スタックのトップからn番目 (0オリジン) の要素をelemに置き換える。
+// nがスタックの深さより大きかったらSTACK_OUT_OF_RANGEを返す。
+int stack_set(Stack *stack, int n, Element *elem);
+
 void stack_print_all(Stack *stack);
 int stack_is_empty(Stack *stack);

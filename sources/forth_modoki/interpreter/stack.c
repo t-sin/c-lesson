@@ -58,6 +58,15 @@ int stack_peek(Stack *stack, int n, Element *out_elem) {
     return 0;
 }
 
+int stack_set(Stack *stack, int n, Element *elem) {
+    if (n >= stack->top) {
+        STACK_OUT_OF_RANGE;
+    }
+
+    copy_element(&stack->array[stack->top - 1 - n], elem);
+    return 0;
+}
+
 void stack_print_all(Stack *stack) {
     printf("*****\n");
     for (int i = 0; i < stack->top; i++) {
@@ -218,6 +227,34 @@ void test_stack_peek_third_element() {
     assert(ret == 0);
     assert(stack_length(stack) == 4);
     assert(element_equal(&output, &expected_elem));
+}
+
+void test_stack_set_third_element() {
+    Element stack_elems[4] = {
+        {ELEMENT_NUMBER, {1}},
+        {ELEMENT_NUMBER, {2}},
+        {ELEMENT_NUMBER, {3}},
+        {ELEMENT_NUMBER, {4}},
+    };
+    Element input = {ELEMENT_NUMBER, {42}};
+    int input_nth = 2;
+    int expected_return = 0;
+    Element expected_elem = {ELEMENT_NUMBER, {3}};
+
+    Stack *stack = stack_init();
+    for (int i = 0; i < sizeof(stack_elems) / sizeof(stack_elems[0]); i++) {
+        stack_push(stack, &stack_elems[i]);
+    }
+
+    assert(stack_length(stack) == 4);
+
+    int ret = stack_set(stack, input_nth, &input);
+    assert(ret == 0);
+    assert(stack_length(stack) == 4);
+
+    Element elem;
+    stack_peek(stack, input_nth, &elem);
+    assert(element_equal(&elem, &expected_elem));
 }
 
 void test_all() {

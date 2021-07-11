@@ -260,6 +260,16 @@ void dup_op() {
     stack_push(stack, &e);
 }
 
+void index_op() {
+    Element n;
+    stack_pop(stack, &n);
+
+    Element out;
+    stack_peek(stack, n.u.number, &out);
+
+    stack_push(stack, &out);
+}
+
 void register_op(char *name, void (*cfunc)()) {
     Element elem;
     elem.etype = ELEMENT_C_FUNC;
@@ -287,6 +297,7 @@ void register_primitives() {
     register_op("pop", pop_op);
     register_op("exch", exch_op);
     register_op("dup", dup_op);
+    register_op("index", index_op);
 }
 
 void eval_with_init(char *input) {
@@ -635,6 +646,20 @@ static void test_eval_dup() {
     assert(stack_is_empty(stack));
 }
 
+static void test_eval_index() {
+    char *input = "10 20 30 40 2 index";
+    Element expected_top = {ELEMENT_NUMBER, {20}};
+    int expected_stack_length = 5;
+
+    eval_with_init(input);
+
+    assert(stack_length(stack) == 5);
+
+    Element elem;
+    stack_pop(stack, &elem);
+    assert_element_equal(&elem, &expected_top);
+}
+
 static void test_eval_exec_array_with_a_number() {
     char *input = "{ 42 }";
     int expected_type = ELEMENT_EXEC_ARRAY;
@@ -838,6 +863,7 @@ static void test_all() {
     test_eval_pop();
     test_eval_exch();
     test_eval_dup();
+    test_eval_index();
 
     test_eval_exec_array_with_a_number();
     test_eval_exec_array_with_a_literal_name();

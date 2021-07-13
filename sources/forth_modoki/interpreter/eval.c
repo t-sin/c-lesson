@@ -681,20 +681,20 @@ static void test_eval_roll_twice() {
 static void test_eval_roll_three_times() {
     char *input = "1 2 3 3 3 roll";
     int expected_stack[] = {1, 2, 3};
-    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
 
     eval_with_init(input);
 
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
     assert_stack_integer_contents(expected_stack, expected_length);
 }
 
 static void test_eval_roll_partially() {
     char *input = "1 2 3 4 5 4 3 roll";
     int expected_stack[] = {1, 3, 4, 5, 2};
-    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
 
     eval_with_init(input);
 
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
     assert_stack_integer_contents(expected_stack, expected_length);
 }
 

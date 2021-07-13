@@ -637,13 +637,66 @@ static void test_eval_index() {
     assert_element_equal(&elem, &expected_top);
 }
 
-static void test_eval_roll() {
-    char *input = "1 2 3 4 5 6 7 4 3 roll";
-    int expected_stack_length = 7;
+static void assert_stack_integer_contents(int *expected_contents, int expected_length) {
+    for (int i = 0; i < expected_length; i++) {
+        Element elem;
+        stack_pop(stack, &elem);
+
+        assert(elem.etype == ELEMENT_NUMBER);
+        assert(elem.u.number == expected_contents[expected_length - i - 1]);
+    }
+
+    assert(stack_is_empty(stack));
+}
+
+static void test_eval_roll_with_no_rolling() {
+    char *input = "1 2 3 3 0 roll";
+    int expected_stack[] = {1, 2, 3};
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
 
     eval_with_init(input);
 
-    assert(stack_length(stack) == expected_stack_length);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_roll_once() {
+    char *input = "1 2 3 3 1 roll";
+    int expected_stack[] = {3, 1, 2};
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+
+    eval_with_init(input);
+
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_roll_twice() {
+    char *input = "1 2 3 3 2 roll";
+    int expected_stack[] = {2, 3, 1};
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+
+    eval_with_init(input);
+
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_roll_three_times() {
+    char *input = "1 2 3 3 3 roll";
+    int expected_stack[] = {1, 2, 3};
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+
+    eval_with_init(input);
+
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_roll_partially() {
+    char *input = "1 2 3 4 5 4 3 roll";
+    int expected_stack[] = {1, 3, 4, 5, 2};
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+
+    eval_with_init(input);
+
+    assert_stack_integer_contents(expected_stack, expected_length);
 }
 
 // executable arrays
@@ -855,7 +908,12 @@ static void test_all() {
     test_eval_exch();
     test_eval_dup();
     test_eval_index();
-    test_eval_roll();
+
+    test_eval_roll_with_no_rolling();
+    test_eval_roll_once();
+    test_eval_roll_twice();
+    test_eval_roll_three_times();
+    test_eval_roll_partially();
 
     test_eval_exec_array_with_a_number();
     test_eval_exec_array_with_a_literal_name();

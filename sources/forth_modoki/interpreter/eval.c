@@ -576,67 +576,6 @@ static void test_eval_le_returns_false() {
 
 // stack operators
 
-static void test_eval_pop() {
-    char *input = "1 2 pop";
-    Element expected = {ELEMENT_NUMBER, {1}};
-
-    eval_with_init(input);
-
-    Element elem;
-
-    stack_pop(stack, &elem);
-    assert_element_equal(&elem, &expected);
-
-    assert(stack_is_empty(stack));
-}
-
-static void test_eval_exch() {
-    char *input = "1 10 exch";
-    Element expected1 = {ELEMENT_NUMBER, {1}};
-    Element expected2 = {ELEMENT_NUMBER, {10}};
-
-    eval_with_init(input);
-
-    Element elem;
-
-    stack_pop(stack, &elem);
-    assert_element_equal(&elem, &expected1);
-    stack_pop(stack, &elem);
-    assert_element_equal(&elem, &expected2);
-
-    assert(stack_is_empty(stack));
-}
-
-static void test_eval_dup() {
-    char *input = "42 dup";
-    Element expected = {ELEMENT_NUMBER, {42}};
-
-    eval_with_init(input);
-
-    Element elem;
-
-    stack_pop(stack, &elem);
-    assert_element_equal(&elem, &expected);
-    stack_pop(stack, &elem);
-    assert_element_equal(&elem, &expected);
-
-    assert(stack_is_empty(stack));
-}
-
-static void test_eval_index() {
-    char *input = "10 20 30 40 2 index";
-    Element expected_top = {ELEMENT_NUMBER, {20}};
-    int expected_stack_length = 5;
-
-    eval_with_init(input);
-
-    assert(stack_length(stack) == 5);
-
-    Element elem;
-    stack_pop(stack, &elem);
-    assert_element_equal(&elem, &expected_top);
-}
-
 static void assert_stack_integer_contents(int *expected_contents, int expected_length) {
     for (int i = 0; i < expected_length; i++) {
         Element elem;
@@ -647,6 +586,66 @@ static void assert_stack_integer_contents(int *expected_contents, int expected_l
     }
 
     assert(stack_is_empty(stack));
+}
+
+static void test_eval_pop() {
+    char *input = "1 2 pop";
+    int expected_stack[] = {1};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_exch1() {
+    char *input = "1 10 exch";
+    int expected_stack[] = {10, 1};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_exch2() {
+    char *input = "100 1 10 exch";
+    int expected_stack[] = {100, 10, 1};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_dup() {
+    char *input = "42 dup";
+    int expected_stack[] = {42, 42};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_index1() {
+    char *input = "10 20 30 40 0 index";
+    int expected_stack[] = {10, 20, 30, 40, 40};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_index2() {
+    char *input = "10 20 30 40 2 index";
+    int expected_stack[] = {10, 20, 30, 40, 20};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
 }
 
 static void test_eval_roll_with_no_rolling() {
@@ -905,9 +904,11 @@ static void test_all() {
     test_eval_le_returns_false();
 
     test_eval_pop();
-    test_eval_exch();
+    test_eval_exch1();
+    test_eval_exch2();
     test_eval_dup();
-    test_eval_index();
+    test_eval_index1();
+    test_eval_index2();
 
     test_eval_roll_with_no_rolling();
     test_eval_roll_once();

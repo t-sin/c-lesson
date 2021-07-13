@@ -18,21 +18,21 @@ static Dict *dict;
 
 //// utilities
 
-void token_to_element(Token *token, Element *e) {
+void token_to_element(Token *token, Element *out_elem) {
     switch (token->ltype) {
     case NUMBER:
-        e->etype = ELEMENT_NUMBER;
-        e->u.number = token->u.number;
+        out_elem->etype = ELEMENT_NUMBER;
+        out_elem->u.number = token->u.number;
         break;
 
     case EXECUTABLE_NAME:
-        e->etype = ELEMENT_EXECUTABLE_NAME;
-        e->u.name = token->u.name;
+        out_elem->etype = ELEMENT_EXECUTABLE_NAME;
+        out_elem->u.name = token->u.name;
         break;
 
     case LITERAL_NAME:
-        e->etype = ELEMENT_LITERAL_NAME;
-        e->u.name = token->u.name;
+        out_elem->etype = ELEMENT_LITERAL_NAME;
+        out_elem->u.name = token->u.name;
         break;
 
     default:

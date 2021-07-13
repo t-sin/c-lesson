@@ -859,22 +859,12 @@ static void test_eval_invoke_nested_exec_array() {
 
 static void test_eval_invoke_nested_exec_array2() {
     char *input = "/ZZ {6} def /YY {4 ZZ 5} def /XX {1 2 YY 3} def XX";
-    int expected_nums[] = {1, 2, 4, 6, 5, 3};
+    int expected_stack[] = {1, 2, 4, 6, 5, 3};
 
     eval_with_init(input);
 
-    Element elem;
-    int stack_ret;
-
-    for (int i = sizeof(expected_nums) / sizeof(expected_nums[0]); i > 0; i--) {
-        int idx = i - 1;
-        Element expected = {ELEMENT_NUMBER, {expected_nums[idx]}};
-        stack_ret = stack_pop(stack, &elem);
-        assert(stack_ret == idx);
-        assert_element_equal(&elem, &expected);
-    }
-
-    assert(stack_is_empty(stack));
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
 }
 
 static void test_all() {

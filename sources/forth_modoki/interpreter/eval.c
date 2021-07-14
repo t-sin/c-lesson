@@ -332,6 +332,19 @@ void if_op() {
     }
 }
 
+void ifelse_op() {
+    Element cond, proc1, proc2;
+    stack_pop(stack, &proc2);
+    stack_pop(stack, &proc1);
+    stack_pop(stack, &cond);
+
+    if (element_is_true(&cond)) {
+        eval_exec_array(proc1.u.byte_codes);
+    } else {
+        eval_exec_array(proc2.u.byte_codes);
+    }
+}
+
 //// initilizing codes
 
 void register_op(char *name, void (*cfunc)()) {
@@ -366,6 +379,7 @@ void register_primitives() {
 
     register_op("exec", exec_op);
     register_op("if", if_op);
+    register_op("ifelse", ifelse_op);
 }
 
 void eval_with_init(char *input) {
@@ -760,6 +774,26 @@ static void test_eval_if_when_false() {
     assert_stack_integer_contents(expected_stack, expected_length);
 }
 
+static void test_eval_ifelse_when_true() {
+    char *input = "100 1 {10 20} {30 40} ifelse";
+    int expected_stack[] = {100, 10, 20};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_ifelse_when_false() {
+    char *input = "100 0 {10 20} {30, 40} ifelse";
+    int expected_stack[] = {100, 30, 40};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
 // executable arrays
 
 static void test_eval_exec_array_with_a_number() {
@@ -972,6 +1006,8 @@ static void test_all() {
     test_eval_exec_nested();
     test_eval_if_when_true();
     test_eval_if_when_false();
+    test_eval_ifelse_when_true();
+    test_eval_ifelse_when_false();
 
     test_eval_exec_array_with_a_number();
     test_eval_exec_array_with_a_literal_name();

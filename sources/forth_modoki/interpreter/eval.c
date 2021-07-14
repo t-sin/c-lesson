@@ -223,6 +223,7 @@ define_bin_op(add_op, b.u.number + a.u.number);
 define_bin_op(sub_op, b.u.number - a.u.number);
 define_bin_op(mul_op, b.u.number * a.u.number);
 define_bin_op(div_op, (int)(b.u.number / a.u.number));
+define_bin_op(mod_op, b.u.number % a.u.number);
 
 define_bin_op(eq_op, element_equal(&a, &b));
 define_bin_op(neq_op, !element_equal(&a, &b));
@@ -376,6 +377,8 @@ void register_primitives() {
     register_op("sub", sub_op);
     register_op("mul", mul_op);
     register_op("div", div_op);
+    register_op("mod", mod_op);
+
     register_op("def", def_op);
 
     register_op("eq", eq_op);
@@ -533,6 +536,13 @@ static void test_eval_mul() {
 static void test_eval_div() {
     char *input = "7 3 div";
     int expected = 2;
+
+    verify_binary_numeral_op(input, expected);
+}
+
+static void test_eval_mod() {
+    char *input = "7 3 mod";
+    int expected = 1;
 
     verify_binary_numeral_op(input, expected);
 }
@@ -1022,6 +1032,7 @@ static void test_all() {
     test_eval_sub();
     test_eval_mul();
     test_eval_div();
+    test_eval_mod();
 
     test_eval_eq_returns_true();
     test_eval_eq_returns_false();

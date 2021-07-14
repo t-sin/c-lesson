@@ -103,6 +103,8 @@ void eval_exec_array(ElementArray *elems) {
             break;
 
         case ELEMENT_EXECUTABLE_NAME:
+            // この処理、compile_exec_arrayでやってもよいのでは？
+            // というかForthはそうしてるはず…。
             found = dict_get(dict, elem.u.name, &tmp);
 
             if (found == DICT_FOUND) {

@@ -1,0 +1,51 @@
+/fizzbuzz {
+  % n
+  dup
+  % n n
+  15 mod 0 eq
+  {pop /FizzBuzz}
+  {
+    % n
+    dup
+    % n n
+    3 mod 0 eq
+    {pop /Fizz}
+    {
+      dup
+      5 mod 0 eq
+      {pop /Buzz}
+      {} ifelse
+    } ifelse
+  } ifelse
+} def
+
+/FizzBuzz {
+  % max
+  1
+  % max n
+  {
+    % max n
+    1 index
+    % max n max
+    1 add
+    % max n (max + 1)
+    1 index
+    % max n (max + 1) n
+    neq
+    % max n (max + 1 != n)
+  }
+  {
+    % max n
+    dup
+    % max n n
+    fizzbuzz
+    % max n fizzbuzz(n)
+    3 1 roll
+    % fizzbuzz(n) max n
+    1 add
+    % fizzbuzz(n) max (n + 1)
+  } while
+  pop pop
+} def
+
+15 FizzBuzz

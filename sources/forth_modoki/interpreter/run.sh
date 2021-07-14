@@ -9,7 +9,7 @@ case "$1" in
         rm parser-test stack-test dict-test eval-test fm
         ;;
     main)
-        gcc $DEBUGOPT -o fm cl_getc.c token.c element.c util.c parser.c stack.c dict.c eval.c main.c && ./fm
+        gcc $DEBUGOPT -o fm cl_getc.c token.c element.c util.c parser.c stack.c dict.c eval.c main.c && ./fm $2
         ;;
     eval-test)
         gcc $DEBUGOPT -DEVAL_TEST -o eval-test cl_getc.c token.c element.c util.c parser.c stack.c dict.c eval.c && ./eval-test
@@ -27,7 +27,7 @@ case "$1" in
         echo "Usage: $0 PROG_NAME"
         echo ""
         echo "PROG_NAME:"
-        echo "    main                Compile and run the forth_modoki interpreter."
+        echo "    main [FILE]         Compile and run the forth_modoki interpreter."
         echo "    stack-test          Compile and run tests for stacks."
         echo "    dict-test           Compile and run tests for dictionaries."
         echo "    parser-test         Compile and run tests for parser."

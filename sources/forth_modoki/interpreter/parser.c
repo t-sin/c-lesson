@@ -21,7 +21,7 @@ int is_numeric(int c) {
 }
 
 int is_space(int c) {
-    return c == ' ';
+    return c == ' ' || c == '\n';
 }
 
 int is_open_curly(int c) {
@@ -268,6 +268,28 @@ static void test_parse_one_executable_name_with_open_curly() {
     assert(streq(token.u.name, expect_name));
 }
 
+static void test_parse_two_names_delimited_by_newline() {
+    char *input = "aaa\nbbb";
+    Token expected1 = {EXECUTABLE_NAME, {name: "aaa"}};
+    Token expected2 = {EXECUTABLE_NAME, {name: "bbb"}};
+
+    struct Token token = {UNKNOWN, {0}};
+    int ch;
+
+    cl_getc_set_src(input);
+    ch = parse_one(EOF, &token);
+
+    assert(ch == '\n');
+    assert(token.ltype == expected1.ltype);
+    assert(streq(token.u.name, expected1.u.name));
+
+    ch = parse_one(EOF, &token);
+
+    assert(ch == EOF);
+    assert(token.ltype == expected2.ltype);
+    assert(streq(token.u.name, expected2.u.name));
+}
+
 static void unit_tests() {
     test_parse_one_empty_should_return_END_OF_FILE();
     test_parse_one_number();
@@ -279,6 +301,8 @@ static void unit_tests() {
 
     test_parse_one_liteal_name_with_close_curly();
     test_parse_one_executable_name_with_open_curly();
+
+    test_parse_two_names_delimited_by_newline();
 }
 
 #ifdef PARSER_TEST

@@ -1,0 +1,26 @@
+/sum_k2 {
+  0 exch
+  % sum n -> sum n bool
+  {dup 1 gt}
+  % sum n -> (sum + n * n) (n - 1)
+  {
+    % sum n
+    dup 1 sub
+    % sum n (n - 1)
+    exch
+    % sum (n - 1) n
+    dup
+    % sum (n - 1) n n
+    mul
+    % sum (n - 1) (n * n)
+    3 2 roll
+    % (n - 1) (n * n) sum
+    add
+    % (n - 1) (sum + n * n)
+    exch
+    % (sum + n * n) (n - 1)
+  } while
+  pop
+} def
+
+10 sum_k2 % => 384

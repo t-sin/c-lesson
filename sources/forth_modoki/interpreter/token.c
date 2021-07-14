@@ -46,6 +46,9 @@ void print_token(Token *token) {
         case LITERAL_NAME:
             printf("LITERAL_NAME: %s\n", token->u.name);
             break;
+        case END_OF_FILE:
+            printf("End of file\n");
+            break;
 
         default:
             printf("Unknown type %d\n", token->ltype);

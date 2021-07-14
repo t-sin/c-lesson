@@ -22,7 +22,7 @@ typedef struct Token {
     } u;
 } Token;
 
-void token_copy(Token *dest, Token *src);
+void copy_token(Token *dest, Token *src);
 void print_token(Token *token);
 
 #endif

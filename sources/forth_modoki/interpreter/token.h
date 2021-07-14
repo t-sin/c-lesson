@@ -9,6 +9,7 @@ typedef enum LexicalType {
     OPEN_CURLY,
     CLOSE_CURLY, 
     END_OF_FILE,
+    COMMENT,
     UNKNOWN
 } LexicalType;
 

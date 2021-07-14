@@ -27,6 +27,9 @@ void print_token(Token *token) {
         case NUMBER:
             printf("num: %d\n", token->u.number);
             break;
+        case COMMENT:
+            printf("comment\n");
+            break;
         case SPACE:
             printf("space!\n");
             break;

@@ -16,12 +16,20 @@ int is_eof(int c) {
     return c == EOF;
 }
 
+int is_comment(int c) {
+    return c == '%';
+}
+
+int is_newline(int c) {
+    return c == '\n';
+}
+
 int is_numeric(int c) {
     return '0' <= c && c <= '9';
 }
 
 int is_space(int c) {
-    return c == ' ' || c == '\n';
+    return c == ' ' || is_newline(c);
 }
 
 int is_open_curly(int c) {
@@ -71,6 +79,11 @@ int parse_one(int prev_ch, Token *out_token) {
     if (is_eof(c)) {
         out_token->ltype = END_OF_FILE;
         return EOF;
+
+    } else if (is_comment(c)) {
+        while (c = cl_getc(), !is_newline(c)) ;
+        out_token->ltype = COMMENT;
+        return c;
 
     } else if (is_open_curly(c)) {
         out_token->ltype = OPEN_CURLY;
@@ -290,6 +303,29 @@ static void test_parse_two_names_delimited_by_newline() {
     assert(streq(token.u.name, expected2.u.name));
 }
 
+static void test_parse_one_name_with_comment() {
+    char *input = "% this is a comment line.\ntest";
+    Token expected1 = {COMMENT, {}};
+    Token expected2 = {EXECUTABLE_NAME, {name: "test"}};
+    char peeked_char = '\n';
+
+    struct Token token = {UNKNOWN, {0}};
+    int ch;
+
+    cl_getc_set_src(input);
+    ch = parse_one(EOF, &token);
+
+    assert(ch == peeked_char);
+    assert(token.ltype == expected1.ltype);
+
+    ch = parse_one(EOF, &token);
+
+    assert(ch == EOF);
+    assert(token.ltype == expected2.ltype);
+    assert(streq(token.u.name, expected2.u.name));
+}
+
+
 static void unit_tests() {
     test_parse_one_empty_should_return_END_OF_FILE();
     test_parse_one_number();
@@ -303,6 +339,7 @@ static void unit_tests() {
     test_parse_one_executable_name_with_open_curly();
 
     test_parse_two_names_delimited_by_newline();
+    test_parse_one_name_with_comment();
 }
 
 #ifdef PARSER_TEST

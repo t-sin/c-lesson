@@ -1,0 +1,33 @@
+% n -> fibo(n)
+/fibo {
+  % n
+  dup
+  % n n
+  0 eq
+  % n (n == 0)
+  {pop 0}
+  {
+    % n
+    dup
+    % n n
+    1 eq
+    % n (n == 1)
+    {pop 1}
+    {
+      1 sub
+      % (n - 1)
+      dup
+      % (n - 1) (n - 1)
+      fibo
+      % (n - 1) fibo(n - 1)
+      exch
+      % fibo(n - 1) (n - 1)
+      1 sub fibo
+      % fibo(n - 1) fibo(n - 2)
+      add
+      % (fibo(n - 1) + fibo(n - 2))
+    } ifelse
+  } ifelse
+} def
+
+10 fibo % => 55

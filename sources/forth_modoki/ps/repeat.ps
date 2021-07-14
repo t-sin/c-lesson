@@ -1,0 +1,11 @@
+/repeat {
+  /repeat_proc exch def
+  /repeat_count exch def
+  {repeat_count 0 gt}
+  {
+    repeat_proc
+    /repeat_count repeat_count 1 sub def
+  } while
+} def
+
+3 {1 2} repeat

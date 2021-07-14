@@ -345,6 +345,22 @@ void ifelse_op() {
     }
 }
 
+void while_op() {
+    Element cond, body;
+    stack_pop(stack, &body);
+    stack_pop(stack, &cond);
+
+    eval_exec_array(cond.u.byte_codes);
+    Element val;
+    stack_pop(stack, &val);
+
+    while (element_is_true(&val)) {
+        eval_exec_array(body.u.byte_codes);
+        eval_exec_array(cond.u.byte_codes);
+        stack_pop(stack, &val);
+    }
+}
+
 //// initilizing codes
 
 void register_op(char *name, void (*cfunc)()) {
@@ -380,6 +396,7 @@ void register_primitives() {
     register_op("exec", exec_op);
     register_op("if", if_op);
     register_op("ifelse", ifelse_op);
+    register_op("while", while_op);
 }
 
 void eval_with_init(char *input) {
@@ -794,6 +811,36 @@ static void test_eval_ifelse_when_false() {
     assert_stack_integer_contents(expected_stack, expected_length);
 }
 
+static void test_eval_while_no_loops() {
+    char *input = "100 {0} {10} while";
+    int expected_stack[] = {100};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_while_one_loop() {
+    char *input = "100 1 {dup 0 gt} {1 sub} while";
+    int expected_stack[] = {100, 0};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_while_four_loops() {
+    char *input = "100 4 {dup 0 gt} {dup 1 sub} while";
+    int expected_stack[] = {100, 4, 3, 2, 1, 0};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
 // executable arrays
 
 static void test_eval_exec_array_with_a_number() {
@@ -1004,10 +1051,15 @@ static void test_all() {
 
     test_eval_exec();
     test_eval_exec_nested();
+
     test_eval_if_when_true();
     test_eval_if_when_false();
     test_eval_ifelse_when_true();
     test_eval_ifelse_when_false();
+
+    test_eval_while_no_loops();
+    test_eval_while_one_loop();
+    test_eval_while_four_loops();
 
     test_eval_exec_array_with_a_number();
     test_eval_exec_array_with_a_literal_name();

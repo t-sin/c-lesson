@@ -130,7 +130,7 @@ void eval_exec_array(ElementArray *elems) {
             break;
 
         case ELEMENT_EXEC_ARRAY:
-            eval_exec_array(elem.u.byte_codes);
+            stack_push(stack, &elem);
             break;
         }
     }

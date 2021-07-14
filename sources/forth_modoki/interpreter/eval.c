@@ -191,6 +191,7 @@ void eval() {
             printf("unexpected close curly.\n");
             return;
 
+        case COMMENT:
         case SPACE:
             break;
 

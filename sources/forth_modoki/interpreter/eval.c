@@ -315,6 +315,13 @@ void roll_op() {
     }
 }
 
+void exec_op() {
+    Element e;
+    stack_pop(stack, &e);
+
+    eval_exec_array(e.u.byte_codes);
+}
+
 //// initilizing codes
 
 void register_op(char *name, void (*cfunc)()) {
@@ -346,6 +353,8 @@ void register_primitives() {
     register_op("dup", dup_op);
     register_op("index", index_op);
     register_op("roll", roll_op);
+
+    register_op("exec", exec_op);
 }
 
 void eval_with_init(char *input) {
@@ -698,6 +707,26 @@ static void test_eval_roll_partially() {
     assert_stack_integer_contents(expected_stack, expected_length);
 }
 
+static void test_eval_exec() {
+    char *input = "{1 2} exec";
+    int expected_stack[] = {1, 2};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_exec_nested() {
+    char *input = "{1 {2 3} exec} exec";
+    int expected_stack[] = {1, 2, 3};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
 // executable arrays
 
 static void test_eval_exec_array_with_a_number() {
@@ -905,6 +934,9 @@ static void test_all() {
     test_eval_roll_twice();
     test_eval_roll_three_times();
     test_eval_roll_partially();
+
+    test_eval_exec();
+    test_eval_exec_nested();
 
     test_eval_exec_array_with_a_number();
     test_eval_exec_array_with_a_literal_name();

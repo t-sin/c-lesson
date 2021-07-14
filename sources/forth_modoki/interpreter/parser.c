@@ -1,4 +1,5 @@
 #include "clesson.h"
+#include "util.h"
 #include "token.h"
 #include "parser.h"
 
@@ -37,6 +38,10 @@ int is_slash(int c) {
 
 int is_alpha(int c) {
     return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z');
+}
+
+int is_end_of_name(int c) {
+    return is_space(c) || is_close_curly(c) || is_open_curly(c) || is_eof(c);
 }
 
 int str2int(char *str, int length) {
@@ -94,7 +99,7 @@ int parse_one(int prev_ch, Token *out_token) {
     } else if (is_alpha(c)) {
         do {
             buf[pos++] = c;
-        } while (c = cl_getc(), (!is_space(c) && !is_eof(c)));
+        } while (c = cl_getc(), !is_end_of_name(c));
         buf[pos] = '\0';
 
         out_token->ltype = EXECUTABLE_NAME;
@@ -103,7 +108,7 @@ int parse_one(int prev_ch, Token *out_token) {
         return c;
 
     } else if (is_slash(c)) {
-        while (c = cl_getc(), (!is_space(c) && !is_eof(c))) {
+        while (c = cl_getc(), !is_end_of_name(c)) {
             buf[pos++] = c;
         }
         buf[pos] = '\0';
@@ -229,6 +234,40 @@ static void test_parse_one_close_curly() {
     assert(token.u.onechar == expect_char);
 }
 
+static void test_parse_one_liteal_name_with_close_curly() {
+    char *input = "/test}";
+    char *expect_name = "test";
+    int expect_type = LITERAL_NAME;
+    char peeked_char = '}';
+
+    struct Token token = {UNKNOWN, {0}};
+    int ch;
+
+    cl_getc_set_src(input);
+    ch = parse_one(EOF, &token);
+
+    assert(ch == peeked_char);
+    assert(token.ltype == expect_type);
+    assert(streq(token.u.name, expect_name));
+}
+
+static void test_parse_one_executable_name_with_open_curly() {
+    char *input = "test{";
+    char *expect_name = "test";
+    int expect_type = EXECUTABLE_NAME;
+    char peeked_char = '{';
+
+    struct Token token = {UNKNOWN, {0}};
+    int ch;
+
+    cl_getc_set_src(input);
+    ch = parse_one(EOF, &token);
+
+    assert(ch == peeked_char);
+    assert(token.ltype == expect_type);
+    assert(streq(token.u.name, expect_name));
+}
+
 static void unit_tests() {
     test_parse_one_empty_should_return_END_OF_FILE();
     test_parse_one_number();
@@ -237,6 +276,9 @@ static void unit_tests() {
     test_parse_one_literal_name();
     test_parse_one_open_curly();
     test_parse_one_close_curly();
+
+    test_parse_one_liteal_name_with_close_curly();
+    test_parse_one_executable_name_with_open_curly();
 }
 
 #ifdef PARSER_TEST

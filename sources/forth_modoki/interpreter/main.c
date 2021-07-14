@@ -15,7 +15,7 @@ int cl_getc_set_file(char *filename) {
     }
 
     char *buf = (char *)malloc(sizeof(char) * BUFFER_SIZE);
-    fgets(buf, BUFFER_SIZE, fin);
+    fread(buf, sizeof(char), BUFFER_SIZE, fin);
     cl_getc_set_src(buf);
 
     fclose(fin);

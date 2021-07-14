@@ -117,8 +117,6 @@ void eval_exec_array(ElementArray *elems) {
                     stack_push(stack, &tmp);
                 }
             } else {
-                // これはどういう状況だ…？
-                // symbolがunbound的な感じだと思うのでエラーとしたい。
                 printf("unbound executable name: %s\n", elem.u.name);
             }
             break;

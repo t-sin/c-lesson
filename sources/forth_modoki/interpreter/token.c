@@ -1,3 +1,4 @@
+#include "util.h"
 #include "token.h"
 
 #include <stdio.h>
@@ -50,5 +51,31 @@ void print_token(Token *token) {
             printf("Unknown type %d\n", token->ltype);
             break;
         }
+    }
+}
+
+int token_equal(Token *a, Token *b) {
+    if (a->ltype != b->ltype) {
+        return 0;
+    }
+
+    switch (a->ltype) {
+    case SPACE:
+    case END_OF_FILE:
+    case COMMENT:
+    case OPEN_CURLY:
+    case CLOSE_CURLY:
+        return 1;
+
+    case NUMBER:
+        return a->u.number == b->u.number;
+
+    case EXECUTABLE_NAME:
+    case LITERAL_NAME:
+        return streq(a->u.name, b->u.name);
+
+    case UNKNOWN:
+        printf("compares two unknown tokens!\n");
+        return 1;
     }
 }

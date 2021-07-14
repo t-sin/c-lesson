@@ -155,9 +155,9 @@ void parser_print_all() {
 
 static void test_parse_one_number() {
     char *input = "123";
-    int expect = 123;
+    Token expected = {NUMBER, {123}};
 
-    struct Token token = {UNKNOWN, {0}};
+    Token token;
     int ch;
 
     cl_getc_set_src(input);
@@ -165,120 +165,107 @@ static void test_parse_one_number() {
     ch = parse_one(EOF, &token);
 
     assert(ch == EOF);
-    assert(token.ltype == NUMBER);
-    assert(expect == token.u.number);
+    assert(token_equal(&token, &expected));
 }
 
 static void test_parse_one_empty_should_return_END_OF_FILE() {
     char *input = "";
-    int expect = END_OF_FILE;
+    Token expected = {END_OF_FILE};
 
-    struct Token token = {UNKNOWN, {0}};
+    Token token;
     int ch;
 
     cl_getc_set_src(input);
     ch = parse_one(EOF, &token);
 
     assert(ch == EOF);
-    assert(token.ltype == expect);
+    assert(token_equal(&token, &expected));
 }
 
 static void test_parse_one_executable_name() {
     char* input = "add";
-    char* expect_name = "add";
-    int expect_type = EXECUTABLE_NAME;
+    Token expected = {EXECUTABLE_NAME, {name: "add"}};
 
-    struct Token token = {UNKNOWN, {0}};
+    Token token = {UNKNOWN, {0}};
     int ch;
 
     cl_getc_set_src(input);
     ch = parse_one(EOF, &token);
 
     assert(ch == EOF);
-    assert(token.ltype == expect_type);
-    assert(strcmp(token.u.name, expect_name) == 0);
+    assert(token_equal(&token, &expected));
 }
 
 static void test_parse_one_literal_name() {
     char* input = "/add";
-    char* expect_name = "add";
-    int expect_type = LITERAL_NAME;
+    Token expected = {LITERAL_NAME, {name: "add"}};
 
-    struct Token token = {UNKNOWN, {0}};
+    Token token;
     int ch;
 
     cl_getc_set_src(input);
     ch = parse_one(EOF, &token);
 
     assert(ch == EOF);
-    assert(token.ltype == expect_type);
-    assert(strcmp(token.u.name, expect_name) == 0);
+    assert(token_equal(&token, &expected));
 }
 
 static void test_parse_one_open_curly() {
     char* input = "{";
-    char expect_char = '{';
-    int expect_type = OPEN_CURLY;
+    Token expected = {OPEN_CURLY, {onechar: '{'}};
 
-    struct Token token = {UNKNOWN, {0}};
+    Token token;
     int ch;
 
     cl_getc_set_src(input);
     ch = parse_one(EOF, &token);
 
     assert(ch == EOF);
-    assert(token.ltype == expect_type);
-    assert(token.u.onechar == expect_char);
+    assert(token_equal(&token, &expected));
 }
 
 static void test_parse_one_close_curly() {
     char* input = "}";
-    char expect_char = '}';
-    int expect_type = CLOSE_CURLY;
+    Token expected = {CLOSE_CURLY, {onechar: ']'}};
 
-    struct Token token = {UNKNOWN, {0}};
+    Token token;
     int ch;
 
     cl_getc_set_src(input);
     ch = parse_one(EOF, &token);
 
     assert(ch == EOF);
-    assert(token.ltype == expect_type);
-    assert(token.u.onechar == expect_char);
+    assert(token_equal(&token, &expected));
 }
 
 static void test_parse_one_liteal_name_with_close_curly() {
     char *input = "/test}";
-    char *expect_name = "test";
-    int expect_type = LITERAL_NAME;
+    Token expected = {LITERAL_NAME, {name: "test"}};
     char peeked_char = '}';
 
-    struct Token token = {UNKNOWN, {0}};
+    Token token;
     int ch;
 
     cl_getc_set_src(input);
     ch = parse_one(EOF, &token);
 
     assert(ch == peeked_char);
-    assert(token.ltype == expect_type);
-    assert(streq(token.u.name, expect_name));
+    assert(token_equal(&token, &expected));
 }
 
 static void test_parse_one_executable_name_with_open_curly() {
     char *input = "test{";
-    char *expect_name = "test";
-    int expect_type = EXECUTABLE_NAME;
+    Token expected = {EXECUTABLE_NAME, {name: "test"}};
     char peeked_char = '{';
 
-    struct Token token = {UNKNOWN, {0}};
+    Token token;
     int ch;
 
     cl_getc_set_src(input);
     ch = parse_one(EOF, &token);
 
     assert(ch == peeked_char);
-    assert(token.ltype == expect_type);
-    assert(streq(token.u.name, expect_name));
+    assert(token_equal(&token, &expected));
 }
 
 static void test_parse_two_names_delimited_by_newline() {
@@ -293,14 +280,12 @@ static void test_parse_two_names_delimited_by_newline() {
     ch = parse_one(EOF, &token);
 
     assert(ch == '\n');
-    assert(token.ltype == expected1.ltype);
-    assert(streq(token.u.name, expected1.u.name));
+    assert(token_equal(&token, &expected1));
 
     ch = parse_one(EOF, &token);
 
     assert(ch == EOF);
-    assert(token.ltype == expected2.ltype);
-    assert(streq(token.u.name, expected2.u.name));
+    assert(token_equal(&token, &expected2));
 }
 
 static void test_parse_one_name_with_comment() {
@@ -316,13 +301,12 @@ static void test_parse_one_name_with_comment() {
     ch = parse_one(EOF, &token);
 
     assert(ch == peeked_char);
-    assert(token.ltype == expected1.ltype);
+    assert(token_equal(&token, &expected1));
 
     ch = parse_one(EOF, &token);
 
     assert(ch == EOF);
-    assert(token.ltype == expected2.ltype);
-    assert(streq(token.u.name, expected2.u.name));
+    assert(token_equal(&token, &expected2));
 }
 
 

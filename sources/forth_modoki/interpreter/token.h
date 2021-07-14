@@ -24,5 +24,6 @@ typedef struct Token {
 
 void copy_token(Token *dest, Token *src);
 void print_token(Token *token);
+int token_equal(Token *a, Token *b);
 
 #endif

@@ -81,7 +81,7 @@ int parse_one(int prev_ch, Token *out_token) {
         return EOF;
 
     } else if (is_comment(c)) {
-        while (c = cl_getc(), !is_newline(c)) ;
+        while (c = cl_getc(), !is_newline(c) && !is_eof(c)) ;
         out_token->ltype = COMMENT;
         return c;
 
@@ -309,6 +309,21 @@ static void test_parse_one_name_with_comment() {
     assert(token_equal(&token, &expected2));
 }
 
+static void test_parse_one_comment_without_newline() {
+    char *input = "% this is a comment line.";
+    Token expected = {COMMENT, {}};
+    char peeked_char = EOF;
+
+    Token token;
+    int ch;
+
+    cl_getc_set_src(input);
+    ch = parse_one(EOF, &token);
+
+    assert(ch == peeked_char);
+    assert(token_equal(&token, &expected));
+}
+
 
 static void unit_tests() {
     test_parse_one_empty_should_return_END_OF_FILE();
@@ -324,6 +339,7 @@ static void unit_tests() {
 
     test_parse_two_names_delimited_by_newline();
     test_parse_one_name_with_comment();
+    test_parse_one_comment_without_newline();
 }
 
 #ifdef PARSER_TEST

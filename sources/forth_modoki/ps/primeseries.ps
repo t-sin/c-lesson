@@ -1,0 +1,90 @@
+/isprime {
+  dup 1 eq
+  {pop 1}
+  {
+    1 2
+    % n bool i
+    {
+      % n bool i
+      1 index 0 eq
+      {
+        0
+        % n bool i false
+      }
+      {
+        % n bool i
+        2 index
+        % n bool i n
+        2 div
+        % n bool i (n / 2)
+        1 index
+        % n bool i (n / 2) i
+        ge
+        % n bool i (n / 2 >= i)
+      } ifelse
+    }
+    {
+      % n bool i
+      2 index 1 index
+      % n bool i n i
+      mod 0 eq
+      % n bool i (n % i != 0)
+      {
+        % n bool i
+        exch pop 0 exch
+        % n false i
+      } if
+
+      % n bool i
+      1 add
+      % n bool (i + 1)
+    } while
+
+    % n bool i
+    3 2 roll
+    % bool i n
+    pop pop
+
+  } ifelse
+} def
+
+/primeseries {
+  % max
+  2
+  % max n
+  {
+    % max n
+    1 index
+    % max n max
+    1 add
+    % max n (max + 1)
+    1 index
+    % max n (max + 1) n
+    neq
+    % max n (max + 1 == n)
+  }
+  {
+    % max n
+    dup dup
+    % max n n n
+    isprime
+    % max n n isprime(n)
+    {
+      % max n n
+      3 1 roll
+      % n max n
+    }
+    {
+      % max n n
+      pop
+      % max n
+    } ifelse
+
+    % max n
+    1 add
+  } while
+  pop pop
+} def
+
+100 primeseries
+

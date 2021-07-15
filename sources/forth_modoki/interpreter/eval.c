@@ -782,6 +782,16 @@ static void test_eval_exec_nested() {
     assert_stack_integer_contents(expected_stack, expected_length);
 }
 
+static void test_eval_exec_proceed_next_elem() {
+    char *input = "{1 2} exec 42";
+    int expected_stack[] = {1, 2, 42};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
 static void test_eval_if_when_true() {
     char *input = "100 1 {10 20} if";
     int expected_stack[] = {100, 10, 20};
@@ -802,6 +812,26 @@ static void test_eval_if_when_false() {
     assert_stack_integer_contents(expected_stack, expected_length);
 }
 
+static void test_eval_if_nested_when_true() {
+    char *input = "100 1 {1 {300} if 20} if";
+    int expected_stack[] = {100, 300, 20};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_if_proceed_next_elem() {
+    char *input = "100 1 {10 20} if 42";
+    int expected_stack[] = {100, 10, 20, 42};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
 static void test_eval_ifelse_when_true() {
     char *input = "100 1 {10 20} {30 40} ifelse";
     int expected_stack[] = {100, 10, 20};
@@ -815,6 +845,26 @@ static void test_eval_ifelse_when_true() {
 static void test_eval_ifelse_when_false() {
     char *input = "100 0 {10 20} {30, 40} ifelse";
     int expected_stack[] = {100, 30, 40};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_ifelse_nested_when_true() {
+    char *input = "100 1 {10 20 0 {100 200} {300 400} ifelse} {30 40} ifelse";
+    int expected_stack[] = {100, 10, 20, 300, 400};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_ifelse_proceed_next_elem() {
+    char *input = "100 0 {10 20} {30, 40} ifelse 42";
+    int expected_stack[] = {100, 30, 40, 42};
 
     eval_with_init(input);
 
@@ -845,6 +895,26 @@ static void test_eval_while_one_loop() {
 static void test_eval_while_four_loops() {
     char *input = "100 4 {dup 0 gt} {dup 1 sub} while";
     int expected_stack[] = {100, 4, 3, 2, 1, 0};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_while_nested_loops() {
+    char *input = "100 2 {dup 0 gt} {0 {dup 20 lt} {dup 10 add} while 3 2 roll pop exch 2 1 roll 2 index 1 sub} while";
+    int expected_stack[] = {100, 2, 10, 20, 1, 10, 20, 0};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_while_proceed_next_elem() {
+    char *input = "100 1 {dup 0 gt} {1 sub} while 42";
+    int expected_stack[] = {100, 0, 42};
 
     eval_with_init(input);
 
@@ -1063,15 +1133,27 @@ static void test_all() {
 
     test_eval_exec();
     test_eval_exec_nested();
+    test_eval_exec_proceed_next_elem();
 
     test_eval_if_when_true();
     test_eval_if_when_false();
+    test_eval_if_nested_when_true();
+    test_eval_if_proceed_next_elem();;
+
     test_eval_ifelse_when_true();
     test_eval_ifelse_when_false();
+    test_eval_ifelse_nested_when_true();
+    test_eval_ifelse_proceed_next_elem();
+
+    // repeatはまだプリミティブとして実装してないのでテスト追加しない
+    // test_eval_repeat_no_loops();
+    // test_eval_repeat_three_loops();
+    // test_eval_repeat_nested_three_loops();
 
     test_eval_while_no_loops();
     test_eval_while_one_loop();
     test_eval_while_four_loops();
+    test_eval_while_nested_loops();
 
     test_eval_exec_array_with_a_number();
     test_eval_exec_array_with_a_literal_name();

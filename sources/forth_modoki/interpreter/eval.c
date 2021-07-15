@@ -1091,6 +1091,26 @@ static void test_eval_invoke_nested_exec_array2() {
     assert_stack_integer_contents(expected_stack, expected_length);
 }
 
+static void test_eval_complex_case1() {
+    char *input = "/f { {1 3 add} exec 3} def f";
+    int expected_stack[] = {4, 3};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_factorial() {
+    char *input = "/factorial {dup {dup 1 gt} {1 sub exch 1 index mul exch} while pop} def 10 factorial";
+    int expected_stack[] = {3628800};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
 static void test_all() {
     test_eval_num_one();
     test_eval_num_two();
@@ -1166,6 +1186,9 @@ static void test_all() {
     test_eval_invoke_exec_array_with_a_number();
     test_eval_invoke_nested_exec_array();
     test_eval_invoke_nested_exec_array2();
+
+    test_eval_complex_case1();
+    test_eval_factorial();
 }
 
 #ifdef EVAL_TEST

@@ -9,7 +9,7 @@ case "$1" in
         rm parser-test stack-test dict-test eval-test cont-test fm
         ;;
     main)
-        gcc $DEBUGOPT -o fm cl_getc.c token.c element.c util.c parser.c stack.c dict.c eval.c main.c && ./fm $2
+        gcc $DEBUGOPT -o fm cl_getc.c token.c element.c util.c parser.c stack.c dict.c continuation.c eval.c main.c && ./fm $2
         ;;
     cont-test)
         gcc $DEBUGOPT -DCONT_TEST -o cont-test util.c element.c continuation.c && ./cont-test

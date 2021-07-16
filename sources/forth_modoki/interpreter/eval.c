@@ -3,6 +3,7 @@
 
 #include "token.h"
 #include "element.h"
+#include "continuation.h"
 
 #include "parser.h"
 #include "stack.h"
@@ -91,47 +92,48 @@ int compile_exec_array(Element *out_elem) {
 //// byte code interpreter
 
 void eval_exec_array(ElementArray *elems) {
-    for (int i = 0; i < elems->len; i++) {
-        Element elem = elems->elements[i];
+    Continuation cont = {elems, 0};
+    co_push(&cont);
 
-        Element tmp;
-        int found;
+    while (co_pop(&cont) != CONT_EMPTY) {
+        while (cont.pc < cont.exec_array->len) {
+            Element elem;
+            copy_element(&elem, &cont.exec_array->elements[cont.pc++]);
 
-        switch (elem.etype) {
-        case ELEMENT_NUMBER:
-            stack_push(stack, &elem);
-            break;
+            if (elem.etype == ELEMENT_EXEC_ARRAY) {
+                co_push(&cont);
 
-        case ELEMENT_EXECUTABLE_NAME:
-            // この処理、compile_exec_arrayでやってもよいのでは？
-            // というかForthはそうしてるはず…。
-            found = dict_get(dict, elem.u.name, &tmp);
+                cont.exec_array = elem.u.byte_codes;
+                cont.pc = 0;
+                co_push(&cont);
 
-            if (found == DICT_FOUND) {
-                if (tmp.etype == ELEMENT_C_FUNC) {
-                    tmp.u.cfunc();
-                } else if (tmp.etype == ELEMENT_EXEC_ARRAY) {
-                    eval_exec_array(tmp.u.byte_codes);
-                } else {
-                    // ユーザがdefしたnameなので値をスタックにプッシュ
-                    stack_push(stack, &tmp);
-                }
-            } else {
-                printf("unbound executable name: %s\n", elem.u.name);
+                break;
             }
-            break;
 
-        case ELEMENT_LITERAL_NAME:
-            stack_push(stack, &elem);
-            break;
+            switch (elem.etype) {
+            case ELEMENT_EXEC_ARRAY:
+                printf("SOMETHING WRONG!!!!\n");
+                printf("  exec array are processed and broken inner loops at if statement above.\n");
+                return;
 
-        case ELEMENT_C_FUNC:
-            elem.u.cfunc();
-            break;
+            case ELEMENT_NUMBER:
+                stack_push(stack, &elem);
+                break;
 
-        case ELEMENT_EXEC_ARRAY:
-            stack_push(stack, &elem);
-            break;
+            case ELEMENT_LITERAL_NAME:
+                stack_push(stack, &elem);
+                break;
+
+            case ELEMENT_C_FUNC:
+                elem.u.cfunc();
+                break;
+
+            // おそらくここが文書中で言われてる動かなくなるポイント。
+            // ところで、実行可能配列をデータスタックに積む動き、どうするのだろう…。
+            // case ELEMENT_EXEC_ARRAY:
+            //     stack_push(stack, &elem);
+            //     break;
+            }
         }
     }
 }

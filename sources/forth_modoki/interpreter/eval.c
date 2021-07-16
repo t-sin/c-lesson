@@ -872,6 +872,16 @@ static void test_eval_ifelse_proceed_next_elem() {
     assert_stack_integer_contents(expected_stack, expected_length);
 }
 
+static void test_eval_ifelse_insufficient_args() {
+    char *input = "/a {{345} ifelse} def 1 {123} a";
+    int expected_stack[] = {123};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
 static void test_eval_while_no_loops() {
     char *input = "100 {0} {10} while";
     int expected_stack[] = {100};
@@ -915,6 +925,16 @@ static void test_eval_while_nested_loops() {
 static void test_eval_while_proceed_next_elem() {
     char *input = "100 1 {dup 0 gt} {1 sub} while 42";
     int expected_stack[] = {100, 0, 42};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_while_insufficient_args() {
+    char *input = "/a {1 {dup 5 lt}} def a {dup 1 add} while";
+    int expected_stack[] = {1, 2, 3, 4, 5};
 
     eval_with_init(input);
 
@@ -1164,16 +1184,19 @@ static void test_all() {
     test_eval_ifelse_when_false();
     test_eval_ifelse_nested_when_true();
     test_eval_ifelse_proceed_next_elem();
+    test_eval_ifelse_insufficient_args();
 
     // repeatはまだプリミティブとして実装してないのでテスト追加しない
     // test_eval_repeat_no_loops();
     // test_eval_repeat_three_loops();
     // test_eval_repeat_nested_three_loops();
+    // test_eval_repeat_insufficient_args();
 
     test_eval_while_no_loops();
     test_eval_while_one_loop();
     test_eval_while_four_loops();
     test_eval_while_nested_loops();
+    test_eval_while_insufficient_args();
 
     test_eval_exec_array_with_a_number();
     test_eval_exec_array_with_a_literal_name();

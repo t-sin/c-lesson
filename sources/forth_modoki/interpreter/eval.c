@@ -100,22 +100,18 @@ void eval_exec_array(ElementArray *elems) {
             Element elem;
             copy_element(&elem, &cont.exec_array->elements[cont.pc++]);
 
-            if (elem.etype == ELEMENT_EXEC_ARRAY) {
-                co_push(&cont);
-
-                cont.exec_array = elem.u.byte_codes;
-                cont.pc = 0;
-                co_push(&cont);
+            if (elem.etype == ELEMENT_EXECUTABLE_NAME) {
+                if (streq(elem.u.name, "exec")) {
+                    Element proc;
+                    stack_pop(stack, &proc);
+                    Continuation c = {proc.u.byte_codes, 0};
+                    co_push(&c);
+                }
 
                 break;
             }
 
             switch (elem.etype) {
-            case ELEMENT_EXEC_ARRAY:
-                printf("SOMETHING WRONG!!!!\n");
-                printf("  exec array are processed and broken inner loops at if statement above.\n");
-                return;
-
             case ELEMENT_NUMBER:
                 stack_push(stack, &elem);
                 break;
@@ -128,11 +124,9 @@ void eval_exec_array(ElementArray *elems) {
                 elem.u.cfunc();
                 break;
 
-            // おそらくここが文書中で言われてる動かなくなるポイント。
-            // ところで、実行可能配列をデータスタックに積む動き、どうするのだろう…。
-            // case ELEMENT_EXEC_ARRAY:
-            //     stack_push(stack, &elem);
-            //     break;
+            case ELEMENT_EXEC_ARRAY:
+                stack_push(stack, &elem);
+                break;
             }
         }
     }
@@ -319,12 +313,12 @@ void roll_op() {
     }
 }
 
-// void exec_op() {
-//     Element e;
-//     stack_pop(stack, &e);
+void exec_op() {
+    Element proc;
+    stack_pop(stack, &proc);
 
-//     eval_exec_array(e.u.byte_codes);
-// }
+    eval_exec_array(proc.u.byte_codes);
+}
 
 // void if_op() {
 //     Element cond, proc1;
@@ -399,7 +393,7 @@ void register_primitives() {
     register_op("index", index_op);
     register_op("roll", roll_op);
 
-    // register_op("exec", exec_op);
+    register_op("exec", exec_op);
     // register_op("if", if_op);
     // register_op("ifelse", ifelse_op);
     // register_op("while", while_op);
@@ -1174,9 +1168,9 @@ static void test_all() {
     test_eval_roll_three_times();
     test_eval_roll_partially();
 
-    // test_eval_exec();
-    // test_eval_exec_nested();
-    // test_eval_exec_proceed_next_elem();
+    test_eval_exec();
+    test_eval_exec_nested();
+    test_eval_exec_proceed_next_elem();
 
     // test_eval_if_when_true();
     // test_eval_if_when_false();

@@ -6,10 +6,13 @@ fi
 
 case "$1" in
     clear)
-        rm parser-test stack-test dict-test eval-test fm
+        rm parser-test stack-test dict-test eval-test cont-test fm
         ;;
     main)
         gcc $DEBUGOPT -o fm cl_getc.c token.c element.c util.c parser.c stack.c dict.c eval.c main.c && ./fm $2
+        ;;
+    cont-test)
+        gcc $DEBUGOPT -DCONT_TEST -o cont-test util.c element.c continuation.c && ./cont-test
         ;;
     eval-test)
         gcc $DEBUGOPT -DEVAL_TEST -o eval-test cl_getc.c token.c element.c util.c parser.c stack.c dict.c eval.c && ./eval-test
@@ -32,5 +35,6 @@ case "$1" in
         echo "    dict-test           Compile and run tests for dictionaries."
         echo "    parser-test         Compile and run tests for parser."
         echo "    eval-test           Compile and run tests for eval."
+        echo "    cont-test           Compile and run tests for continuations."
         ;;
 esac

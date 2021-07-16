@@ -2,4 +2,5 @@ parser-test
 stack-test
 dict-test
 eval-test
+cont-test
 fm

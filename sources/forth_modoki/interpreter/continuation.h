@@ -11,6 +11,7 @@ typedef struct Continuation {
     int pc;
 } Continuation;
 
+void co_reset();
 int co_push(Continuation *cont);
 int co_pop(Continuation *out_cont);
 

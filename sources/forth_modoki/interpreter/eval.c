@@ -409,6 +409,7 @@ void eval_with_init(char *input) {
     cl_getc_set_src(input);
     stack = stack_init();
     dict = dict_init();
+    co_reset();
     register_primitives();
 
     eval();

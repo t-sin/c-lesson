@@ -31,7 +31,7 @@ int co_pop(Continuation *out_cont) {
     return co_stack_pos;
 }
 
-void test_pop_from_empty_stack() {
+void test_co_pop_from_empty_stack() {
     int expected_ret = CONT_EMPTY;
 
     Continuation cont;
@@ -42,7 +42,7 @@ void test_pop_from_empty_stack() {
     assert(ret == expected_ret);
 }
 
-void test_push_one_exec_array() {
+void test_co_push_one_exec_array() {
     int expected_ret = 1;
     int expected_pos = 1;
     int expected_pc = 42;
@@ -57,7 +57,7 @@ void test_push_one_exec_array() {
     assert(co_stack[0].pc == expected_pc);
 }
 
-void test_pop_one_exec_array() {
+void test_co_pop_one_exec_array() {
     Continuation input = {NULL, 42};
     Continuation expected = {NULL, 42};
     int expected_ret = 0;
@@ -74,7 +74,7 @@ void test_pop_one_exec_array() {
     assert(cont.pc == expected.pc);
 }
 
-void test_push_to_full_stack() {
+void test_co_push_to_full_stack() {
     int expected_ret = CONT_FULL;
     int expected_pos = CONT_MAX_DEPTH;
 
@@ -92,16 +92,16 @@ void test_push_to_full_stack() {
     assert(co_stack_pos == expected_pos);
 }
 
-void test_all() {
-    test_pop_from_empty_stack();
-    test_push_one_exec_array();
-    test_pop_one_exec_array();
-    test_push_to_full_stack();
+void test_cont_all() {
+    test_co_pop_from_empty_stack();
+    test_co_push_one_exec_array();
+    test_co_pop_one_exec_array();
+    test_co_push_to_full_stack();
 }
 
 #ifdef CONT_TEST
 int main() {
-    test_all();
+    test_cont_all();
     return 0;
 }
 #endif

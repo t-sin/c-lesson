@@ -15,7 +15,7 @@ case "$1" in
         gcc $DEBUGOPT -DCONT_TEST -o cont-test util.c element.c continuation.c && ./cont-test
         ;;
     eval-test)
-        gcc $DEBUGOPT -DEVAL_TEST -o eval-test cl_getc.c token.c element.c util.c parser.c stack.c dict.c eval.c && ./eval-test
+        gcc $DEBUGOPT -DEVAL_TEST -o eval-test cl_getc.c token.c element.c util.c parser.c stack.c dict.c continuation.c eval.c && ./eval-test
         ;;
     dict-test)
         gcc $DEBUGOPT -DDICT_TEST -o dict-test element.c util.c stack.c dict.c && ./dict-test

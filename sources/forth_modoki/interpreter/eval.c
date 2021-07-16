@@ -317,51 +317,51 @@ void roll_op() {
     }
 }
 
-void exec_op() {
-    Element e;
-    stack_pop(stack, &e);
+// void exec_op() {
+//     Element e;
+//     stack_pop(stack, &e);
 
-    eval_exec_array(e.u.byte_codes);
-}
+//     eval_exec_array(e.u.byte_codes);
+// }
 
-void if_op() {
-    Element cond, proc1;
-    stack_pop(stack, &proc1);
-    stack_pop(stack, &cond);
+// void if_op() {
+//     Element cond, proc1;
+//     stack_pop(stack, &proc1);
+//     stack_pop(stack, &cond);
 
-    if (element_is_true(&cond)) {
-        eval_exec_array(proc1.u.byte_codes);
-    }
-}
+//     if (element_is_true(&cond)) {
+//         eval_exec_array(proc1.u.byte_codes);
+//     }
+// }
 
-void ifelse_op() {
-    Element cond, proc1, proc2;
-    stack_pop(stack, &proc2);
-    stack_pop(stack, &proc1);
-    stack_pop(stack, &cond);
+// void ifelse_op() {
+//     Element cond, proc1, proc2;
+//     stack_pop(stack, &proc2);
+//     stack_pop(stack, &proc1);
+//     stack_pop(stack, &cond);
 
-    if (element_is_true(&cond)) {
-        eval_exec_array(proc1.u.byte_codes);
-    } else {
-        eval_exec_array(proc2.u.byte_codes);
-    }
-}
+//     if (element_is_true(&cond)) {
+//         eval_exec_array(proc1.u.byte_codes);
+//     } else {
+//         eval_exec_array(proc2.u.byte_codes);
+//     }
+// }
 
-void while_op() {
-    Element cond, body;
-    stack_pop(stack, &body);
-    stack_pop(stack, &cond);
+// void while_op() {
+//     Element cond, body;
+//     stack_pop(stack, &body);
+//     stack_pop(stack, &cond);
 
-    eval_exec_array(cond.u.byte_codes);
-    Element val;
-    stack_pop(stack, &val);
+//     eval_exec_array(cond.u.byte_codes);
+//     Element val;
+//     stack_pop(stack, &val);
 
-    while (element_is_true(&val)) {
-        eval_exec_array(body.u.byte_codes);
-        eval_exec_array(cond.u.byte_codes);
-        stack_pop(stack, &val);
-    }
-}
+//     while (element_is_true(&val)) {
+//         eval_exec_array(body.u.byte_codes);
+//         eval_exec_array(cond.u.byte_codes);
+//         stack_pop(stack, &val);
+//     }
+// }
 
 //// initilizing codes
 
@@ -397,10 +397,10 @@ void register_primitives() {
     register_op("index", index_op);
     register_op("roll", roll_op);
 
-    register_op("exec", exec_op);
-    register_op("if", if_op);
-    register_op("ifelse", ifelse_op);
-    register_op("while", while_op);
+    // register_op("exec", exec_op);
+    // register_op("if", if_op);
+    // register_op("ifelse", ifelse_op);
+    // register_op("while", while_op);
 }
 
 void eval_with_init(char *input) {
@@ -1171,32 +1171,32 @@ static void test_all() {
     test_eval_roll_three_times();
     test_eval_roll_partially();
 
-    test_eval_exec();
-    test_eval_exec_nested();
-    test_eval_exec_proceed_next_elem();
+    // test_eval_exec();
+    // test_eval_exec_nested();
+    // test_eval_exec_proceed_next_elem();
 
-    test_eval_if_when_true();
-    test_eval_if_when_false();
-    test_eval_if_nested_when_true();
-    test_eval_if_proceed_next_elem();;
+    // test_eval_if_when_true();
+    // test_eval_if_when_false();
+    // test_eval_if_nested_when_true();
+    // test_eval_if_proceed_next_elem();;
 
-    test_eval_ifelse_when_true();
-    test_eval_ifelse_when_false();
-    test_eval_ifelse_nested_when_true();
-    test_eval_ifelse_proceed_next_elem();
-    test_eval_ifelse_insufficient_args();
+    // test_eval_ifelse_when_true();
+    // test_eval_ifelse_when_false();
+    // test_eval_ifelse_nested_when_true();
+    // test_eval_ifelse_proceed_next_elem();
+    // test_eval_ifelse_insufficient_args();
 
-    // repeatはまだプリミティブとして実装してないのでテスト追加しない
-    // test_eval_repeat_no_loops();
-    // test_eval_repeat_three_loops();
-    // test_eval_repeat_nested_three_loops();
-    // test_eval_repeat_insufficient_args();
+    // // repeatはまだプリミティブとして実装してないのでテスト追加しない
+    // // test_eval_repeat_no_loops();
+    // // test_eval_repeat_three_loops();
+    // // test_eval_repeat_nested_three_loops();
+    // // test_eval_repeat_insufficient_args();
 
-    test_eval_while_no_loops();
-    test_eval_while_one_loop();
-    test_eval_while_four_loops();
-    test_eval_while_nested_loops();
-    test_eval_while_insufficient_args();
+    // test_eval_while_no_loops();
+    // test_eval_while_one_loop();
+    // test_eval_while_four_loops();
+    // test_eval_while_nested_loops();
+    // test_eval_while_insufficient_args();
 
     test_eval_exec_array_with_a_number();
     test_eval_exec_array_with_a_literal_name();
@@ -1210,8 +1210,8 @@ static void test_all() {
     test_eval_invoke_nested_exec_array();
     test_eval_invoke_nested_exec_array2();
 
-    test_eval_complex_case1();
-    test_eval_factorial();
+    // test_eval_complex_case1();
+    // test_eval_factorial();
 }
 
 #ifdef EVAL_TEST

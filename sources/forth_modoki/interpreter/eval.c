@@ -118,11 +118,7 @@ void eval_exec_array(ElementArray *elems) {
                     Element n;
                     stack_pop(stack, &n);
 
-                    if (n.u.number >= cont.exec_array->len - 1) {
-                        co_pop(&cont);
-                    } else {
-                        cont.pc += n.u.number;
-                    }
+                    cont.pc += n.u.number;
 
                 } else if (streq(elem.u.name, "jmp_not_if")) {
                     Element cond, n;
@@ -130,11 +126,7 @@ void eval_exec_array(ElementArray *elems) {
                     stack_pop(stack, &cond);
 
                     if (element_is_false(&cond)) {
-                        if (n.u.number >= cont.exec_array->len - 1) {
-                            co_pop(&cont);
-                        } else {
-                            cont.pc += n.u.number;
-                        }
+                        cont.pc += n.u.number;
                     } else {
                         cont.pc++;
                     }

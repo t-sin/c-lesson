@@ -60,10 +60,39 @@ int compile_exec_array(Element *out_elem) {
 
         switch (token.ltype) {
         case NUMBER:
-        case EXECUTABLE_NAME:
         case LITERAL_NAME:
             token_to_element(&token, &elem);
             copy_element(&array[idx++], &elem);
+            break;
+
+        case EXECUTABLE_NAME:
+            token_to_element(&token, &elem);
+
+            if (streq(elem.u.name, "ifelse")) {
+                Element code[] = {
+                    {ELEMENT_NUMBER, {3}},
+                    {ELEMENT_NUMBER, {2}},
+                    {ELEMENT_EXECUTABLE_NAME, {name: "roll"}},
+                    {ELEMENT_NUMBER, {5}},
+                    {ELEMENT_EXECUTABLE_NAME, {name: "jmp_not_if"}},
+                    {ELEMENT_EXECUTABLE_NAME, {name: "pop"}},
+                    {ELEMENT_EXECUTABLE_NAME, {name: "exec"}},
+                    {ELEMENT_NUMBER, {4}},
+                    {ELEMENT_EXECUTABLE_NAME, {name: "jmp"}},
+                    {ELEMENT_EXECUTABLE_NAME, {name: "exch"}},
+                    {ELEMENT_EXECUTABLE_NAME, {name: "pop"}},
+                    {ELEMENT_EXECUTABLE_NAME, {name: "exec"}},
+                };
+                int len = sizeof(code) / sizeof(code[0]);
+
+                for (int i = 0; i < len; i++) {
+                    copy_element(&array[idx++], &code[i]);
+                }
+
+            } else {
+                copy_element(&array[idx++], &elem);
+            }
+
             break;
 
         case OPEN_CURLY:
@@ -1329,9 +1358,9 @@ static void test_all() {
 
     // test_eval_ifelse_when_true();
     // test_eval_ifelse_when_false();
-    // test_eval_ifelse_nested_when_true();
+    test_eval_ifelse_nested_when_true();
     // test_eval_ifelse_proceed_next_elem();
-    // test_eval_ifelse_insufficient_args();
+    test_eval_ifelse_insufficient_args();
 
     // // repeatはまだプリミティブとして実装してないのでテスト追加しない
     // // test_eval_repeat_no_loops();

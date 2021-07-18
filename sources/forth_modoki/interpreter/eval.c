@@ -130,6 +130,40 @@ void eval_exec_array(ElementArray *elems) {
                     } else {
                         cont.pc++;
                     }
+                } else if (streq(elem.u.name, "ifelse")) {
+                    Element cond, proc1, proc2;
+                    stack_pop(stack, &proc2);
+                    stack_pop(stack, &proc1);
+                    stack_pop(stack, &cond);
+
+                    Element code[] = {
+                        cond,
+                        {ELEMENT_NUMBER, {5}},
+                        {ELEMENT_EXECUTABLE_NAME, {name: "jmp_not_if"}},
+                        proc1,
+                        {ELEMENT_EXECUTABLE_NAME, {name: "exec"}},
+                        {ELEMENT_NUMBER, {3}},
+                        {ELEMENT_EXECUTABLE_NAME, {name: "jmp"}},
+                        proc1,
+                        {ELEMENT_EXECUTABLE_NAME, {name: "exec"}},
+                    };
+                    int len = sizeof(code) / sizeof(code[0]);
+
+                    cont.pc++;
+                    co_push(&cont);
+
+                    Continuation c;
+                    c.exec_array = (ElementArray *)malloc(sizeof(ElementArray) + sizeof(Element) * len);
+                    c.exec_array->len = len;
+                    for (int i = 0; i < len; i++) {
+                        copy_element(&c.exec_array->elements[i], &code[i]);
+                    }
+                    c.pc = 0;
+                    co_push(&c);
+
+                } else if (streq(elem.u.name, "pstack")) {
+                    stack_print_all(stack);
+                    cont.pc++;
                 }
             }
 
@@ -878,8 +912,8 @@ static void test_eval_ifelse_when_false() {
 }
 
 static void test_eval_ifelse_nested_when_true() {
-    char *input = "100 1 {10 20 0 {100 200} {300 400} ifelse} {30 40} ifelse";
-    int expected_stack[] = {100, 10, 20, 300, 400};
+    char *input = "100 10 20 {1 {100 200} {300 400} ifelse} exec";
+    int expected_stack[] = {100, 10, 20, 100, 200};
 
     eval_with_init(input);
 
@@ -1290,7 +1324,7 @@ static void test_all() {
 
     // test_eval_ifelse_when_true();
     // test_eval_ifelse_when_false();
-    // test_eval_ifelse_nested_when_true();
+    test_eval_ifelse_nested_when_true();
     // test_eval_ifelse_proceed_next_elem();
     // test_eval_ifelse_insufficient_args();
 

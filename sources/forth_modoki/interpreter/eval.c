@@ -131,8 +131,32 @@ void eval_exec_array(ElementArray *elems) {
                     } else {
                         cont.pc++;
                     }
+
                 } else if (streq(elem.u.name, "pstack")) {
                     stack_print_all(stack);
+                    cont.pc++;
+
+                } else {
+                    Element tmp;
+                    int found = dict_get(dict, elem.u.name, &tmp);
+
+                    if (found == DICT_FOUND) {
+                        if (tmp.etype == ELEMENT_C_FUNC) {
+                            tmp.u.cfunc();
+
+                        } else if (tmp.etype == ELEMENT_EXEC_ARRAY) {
+                            eval_exec_array(tmp.u.byte_codes);
+
+                        } else {
+                            printf("I think the program never reaches here...\n", tmp.u.name);
+                            return;
+                        }
+
+                    } else {
+                        printf("unbound executable name: %s\n", tmp.u.name);
+                        return;
+                    }
+
                     cont.pc++;
                 }
             }
@@ -789,6 +813,16 @@ static void test_eval_roll_partially() {
     assert_stack_integer_contents(expected_stack, expected_length);
 }
 
+static void test_eval_nested_roll() {
+    char *input = "{1 2 3 3 1 roll} exec";
+    int expected_stack[] = {3, 1, 2};
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+
+    eval_with_init(input);
+
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
 // control flow
 
 static void test_eval_exec() {
@@ -1273,6 +1307,7 @@ static void test_all() {
     test_eval_roll_twice();
     test_eval_roll_three_times();
     test_eval_roll_partially();
+    test_eval_nested_roll();
 
     test_eval_exec_array_jmp_forward();
     test_eval_exec_array_jmp_over_exec_array();

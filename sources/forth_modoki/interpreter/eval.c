@@ -45,6 +45,13 @@ void token_to_element(Token *token, Element *out_elem) {
 
 //// byte code compiler
 
+typedef enum Instruction {
+    OP_EXEC,
+    OP_JMP,
+    OP_JMP_NOT_IF,
+    OP_PSTACK,
+} Instruction;
+
 #define MAX_INSTRUCTIONS 256
 
 void emit_number(Emitter *emitter, int n) {
@@ -57,19 +64,40 @@ void emit_exec_name(Emitter *emitter, char *name) {
     copy_element(&emitter->elems[emitter->pos++], &elem);
 }
 
+void emit_op(Emitter *emitter, Instruction op) {
+    Element elem = {ELEMENT_PRIMITIVE, {op}};
+    copy_element(&emitter->elems[emitter->pos++], &elem);
+}
+
+void compile_exec(Emitter *emitter) {
+    emit_op(emitter, OP_EXEC);
+}
+
+void compile_jmp(Emitter *emitter) {
+    emit_op(emitter, OP_JMP);
+}
+
+void compile_jmp_not_if(Emitter *emitter) {
+    emit_op(emitter, OP_JMP_NOT_IF);
+}
+
+void compile_pstack(Emitter *emitter) {
+    emit_op(emitter, OP_PSTACK);
+}
+
 void compile_ifelse(Emitter *emitter) {
     emit_number(emitter, 3);
     emit_number(emitter, 2);
     emit_exec_name(emitter, "roll");
     emit_number(emitter, 5);
-    emit_exec_name(emitter, "jmp_not_if");
+    emit_op(emitter, OP_JMP_NOT_IF);
     emit_exec_name(emitter, "pop");
-    emit_exec_name(emitter, "exec");
+    emit_op(emitter, OP_EXEC);
     emit_number(emitter, 4);
-    emit_exec_name(emitter, "jmp");
+    emit_op(emitter, OP_JMP);
     emit_exec_name(emitter, "exch");
     emit_exec_name(emitter, "pop");
-    emit_exec_name(emitter, "exec");
+    emit_op(emitter, OP_EXEC);
 }
 
 void register_compile_func(char *name, void (*func)(Emitter*)) {
@@ -80,6 +108,11 @@ void register_compile_func(char *name, void (*func)(Emitter*)) {
 }
 
 void register_compile_funcs() {
+    register_compile_func("exec", compile_exec);
+    register_compile_func("jmp", compile_jmp);
+    register_compile_func("jmp_not_if", compile_jmp_not_if);
+    register_compile_func("pstack", compile_pstack);
+
     register_compile_func("ifelse", compile_ifelse);
 }
 
@@ -161,8 +194,8 @@ void eval_exec_array(ElementArray *elems) {
             copy_element(&elem, &cont.exec_array->elements[cont.pc]);
             // print_element(&elem); printf("\n");
 
-            if (elem.etype == ELEMENT_EXECUTABLE_NAME) {
-                if (streq(elem.u.name, "exec")) {
+            if (elem.etype == ELEMENT_PRIMITIVE) {
+                if (elem.u.number == OP_EXEC) {
                     Element proc;
                     stack_pop(stack, &proc);
 
@@ -174,13 +207,13 @@ void eval_exec_array(ElementArray *elems) {
 
                     break;
 
-                } else if (streq(elem.u.name, "jmp")) {
+                } else if (elem.u.number == OP_JMP) {
                     Element n;
                     stack_pop(stack, &n);
 
                     cont.pc += n.u.number;
 
-                } else if (streq(elem.u.name, "jmp_not_if")) {
+                } else if (elem.u.number == OP_JMP_NOT_IF) {
                     Element cond, n;
                     stack_pop(stack, &n);
                     stack_pop(stack, &cond);
@@ -191,34 +224,35 @@ void eval_exec_array(ElementArray *elems) {
                         cont.pc++;
                     }
 
-                } else if (streq(elem.u.name, "pstack")) {
+                } else if (elem.u.number == OP_PSTACK) {
                     stack_print_all(stack);
                     cont.pc++;
+                }
+            }
 
-                } else {
-                    Element tmp;
-                    int found = dict_get(dict, elem.u.name, &tmp);
+            if (elem.etype == ELEMENT_EXECUTABLE_NAME) {
+                Element tmp;
+                int found = dict_get(dict, elem.u.name, &tmp);
 
-                    if (found == DICT_FOUND) {
-                        if (tmp.etype == ELEMENT_C_FUNC) {
-                            tmp.u.cfunc();
+                if (found == DICT_FOUND) {
+                    if (tmp.etype == ELEMENT_C_FUNC) {
+                        tmp.u.cfunc();
 
-                        } else if (tmp.etype == ELEMENT_EXEC_ARRAY) {
-                            eval_exec_array(tmp.u.byte_codes);
-
-                        } else {
-                            printf("I think the program never reaches here...\n");
-                            printf("The NAME IS... %s\n", elem.u.name);
-                            return;
-                        }
+                    } else if (tmp.etype == ELEMENT_EXEC_ARRAY) {
+                        eval_exec_array(tmp.u.byte_codes);
 
                     } else {
-                        printf("unbound executable name: %s\n", tmp.u.name);
+                        printf("I think the program never reaches here...\n");
+                        printf("The NAME IS... %s\n", elem.u.name);
                         return;
                     }
 
-                    cont.pc++;
+                } else {
+                    printf("unbound executable name: %s\n", elem.u.name);
+                    return;
                 }
+
+                cont.pc++;
             }
 
             switch (elem.etype) {

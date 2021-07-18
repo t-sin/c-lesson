@@ -8,6 +8,7 @@ void copy_element(Element *dest, Element *src) {
 
     switch (src->etype) {
     case ELEMENT_NUMBER:
+    case ELEMENT_PRIMITIVE:
         dest->u.number = src->u.number;
         break;
 
@@ -52,6 +53,10 @@ void print_element(Element *e) {
         printf("<compile_func>");
         break;
 
+    case ELEMENT_PRIMITIVE:
+        printf("<inst:%d>", e->u.number);
+        break;
+
     case ELEMENT_EXEC_ARRAY:
         printf("<exec-array:%d,{", e->u.byte_codes->len);
         for (int i = 0; i < e->u.byte_codes->len; i++) {
@@ -73,6 +78,7 @@ int element_equal(Element *a, Element *b) {
 
     switch (a->etype) {
     case ELEMENT_NUMBER:
+    case ELEMENT_PRIMITIVE:
         return a->u.number == b->u.number;
 
     case ELEMENT_EXECUTABLE_NAME:

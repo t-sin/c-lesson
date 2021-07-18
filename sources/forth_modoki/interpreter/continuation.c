@@ -12,6 +12,10 @@ void co_reset() {
     co_stack_pos = 0;
 }
 
+int co_length() {
+    return co_stack_pos;
+}
+
 int co_push(Continuation *cont) {
     if (co_stack_pos < CONT_MAX_DEPTH) {
         co_stack[co_stack_pos].exec_array = cont->exec_array;

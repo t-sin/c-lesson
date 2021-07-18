@@ -192,7 +192,7 @@ void eval_exec_array(ElementArray *elems) {
 
                         } else {
                             printf("I think the program never reaches here...\n");
-                            printf("The NAME IS... %s\n", tmp.u.name);
+                            printf("The NAME IS... %s\n", elem.u.name);
                             return;
                         }
 

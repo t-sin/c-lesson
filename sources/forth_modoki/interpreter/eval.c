@@ -636,6 +636,8 @@ static void test_eval_le_returns_false() {
 // stack operators
 
 static void assert_stack_integer_contents(int *expected_contents, int expected_length) {
+    assert(stack_length(stack) == expected_length);
+
     for (int i = 0; i < expected_length; i++) {
         Element elem;
         stack_pop(stack, &elem);

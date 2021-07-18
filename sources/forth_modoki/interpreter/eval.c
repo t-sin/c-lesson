@@ -106,6 +106,9 @@ void eval_exec_array(ElementArray *elems) {
                     Element proc;
                     stack_pop(stack, &proc);
 
+                    cont.pc++;
+                    co_push(&cont);
+
                     Continuation c = {proc.u.byte_codes, 0};
                     co_push(&c);
 
@@ -803,8 +806,8 @@ static void test_eval_exec() {
 }
 
 static void test_eval_exec_nested() {
-    char *input = "{1 {2 3} exec} exec";
-    int expected_stack[] = {1, 2, 3};
+    char *input = "{1 {2 3} exec 4} exec";
+    int expected_stack[] = {1, 2, 3, 4};
 
     eval_with_init(input);
 

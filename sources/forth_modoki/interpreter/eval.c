@@ -1270,6 +1270,15 @@ static void test_all() {
     test_eval_roll_three_times();
     test_eval_roll_partially();
 
+    test_eval_exec_array_jmp_forward();
+    test_eval_exec_array_jmp_over_exec_array();
+    test_eval_exec_array_jmp_backward();
+
+    test_eval_exec_array_jmp_not_if_not_jump();
+    test_eval_exec_array_jmp_not_if_forward();
+    test_eval_exec_array_jmp_not_if_backward();
+    test_eval_exec_array_jmp_not_if_over_exec_array();
+
     test_eval_exec();
     test_eval_exec_nested();
     test_eval_exec_proceed_next_elem();
@@ -1311,15 +1320,6 @@ static void test_all() {
 
     // test_eval_complex_case1();
     // test_eval_factorial();
-
-    test_eval_exec_array_jmp_forward();
-    test_eval_exec_array_jmp_over_exec_array();
-    test_eval_exec_array_jmp_backward();
-
-    test_eval_exec_array_jmp_not_if_not_jump();
-    test_eval_exec_array_jmp_not_if_forward();
-    test_eval_exec_array_jmp_not_if_backward();
-    test_eval_exec_array_jmp_not_if_over_exec_array();
 }
 
 #ifdef EVAL_TEST

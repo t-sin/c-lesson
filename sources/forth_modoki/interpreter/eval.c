@@ -311,6 +311,9 @@ void eval() {
     int ch = EOF;
     int found;
 
+    // 評価時にコンパイルする用の領域。ある時点で1つしかいらないのでここで確保する。
+    ElementArray *elem_array = (ElementArray *)malloc(sizeof(ElementArray) + sizeof(Element) * MAX_INSTRUCTIONS);
+
     do {
         ch = parse_one(ch, &token);
         Element tmp;
@@ -323,7 +326,6 @@ void eval() {
 
         case EXECUTABLE_NAME:
             found = dict_get(dict, token.u.name, &tmp);
-
             if (found == DICT_FOUND) {
                 if (tmp.etype == ELEMENT_C_FUNC) {
                     tmp.u.cfunc();
@@ -333,15 +335,26 @@ void eval() {
                     // ユーザがdefしたnameなので値をスタックにプッシュ
                     stack_push(stack, &tmp);
                 }
-            } else {
-                // // ユーザがevalに渡したnameなのでスタックにプッシュ
-                // token_to_element(&token, &elem);
-                // stack_push(stack, &elem);
-                // ↑ ちがう気がする。
-                // symbolがunbound的な感じだと思うのでエラーとしたい。
-                printf("unbound executable name: %s\n", token.u.name);
-
+                break;
             }
+
+            // dictになかったらcompile_dictを探してコンパイルし、実行可能配列にしてキアイで評価する
+            // ただし
+            found = dict_get(compile_dict, token.u.name, &tmp);
+            if (found == DICT_FOUND) {
+                Element code[MAX_INSTRUCTIONS];
+                Emitter emitter = {code, 0};
+                tmp.u.compile_func(&emitter);
+
+                elem_array->len = emitter.pos;
+                memcpy(elem_array->elements, code, sizeof(Element) * emitter.pos);
+
+                eval_exec_array(elem_array);
+
+                break;
+            }
+
+            printf("unbound executable name: %s\n", token.u.name);
             break;
 
         case LITERAL_NAME:
@@ -369,6 +382,8 @@ void eval() {
             printf("unknown token type: %d\n", token.ltype);
         }
     } while (token.ltype != END_OF_FILE);
+
+    free(elem_array);
 }
 
 //// built-in operators
@@ -484,13 +499,6 @@ void roll_op() {
     }
 }
 
-void exec_op() {
-    Element proc;
-    stack_pop(stack, &proc);
-
-    eval_exec_array(proc.u.byte_codes);
-}
-
 // void if_op() {
 //     Element cond, proc1;
 //     stack_pop(stack, &proc1);
@@ -498,19 +506,6 @@ void exec_op() {
 
 //     if (element_is_true(&cond)) {
 //         eval_exec_array(proc1.u.byte_codes);
-//     }
-// }
-
-// void ifelse_op() {
-//     Element cond, proc1, proc2;
-//     stack_pop(stack, &proc2);
-//     stack_pop(stack, &proc1);
-//     stack_pop(stack, &cond);
-
-//     if (element_is_true(&cond)) {
-//         eval_exec_array(proc1.u.byte_codes);
-//     } else {
-//         eval_exec_array(proc2.u.byte_codes);
 //     }
 // }
 
@@ -564,7 +559,7 @@ void register_primitives() {
     register_op("index", index_op);
     register_op("roll", roll_op);
 
-    register_op("exec", exec_op);
+    // register_op("exec", exec_op);
     // register_op("if", if_op);
     // register_op("ifelse", ifelse_op);
     // register_op("while", while_op);
@@ -1448,10 +1443,10 @@ static void test_all() {
     // test_eval_if_nested_when_true();
     // test_eval_if_proceed_next_elem();;
 
-    // test_eval_ifelse_when_true();
-    // test_eval_ifelse_when_false();
+    test_eval_ifelse_when_true();
+    test_eval_ifelse_when_false();
     test_eval_ifelse_nested_when_true();
-    // test_eval_ifelse_proceed_next_elem();
+    test_eval_ifelse_proceed_next_elem();
     test_eval_ifelse_insufficient_args();
 
     // // repeatはまだプリミティブとして実装してないのでテスト追加しない

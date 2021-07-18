@@ -100,6 +100,7 @@ void eval_exec_array(ElementArray *elems) {
 
             Element elem;
             copy_element(&elem, &cont.exec_array->elements[cont.pc]);
+            // print_element(&elem); printf("\n");
 
             if (elem.etype == ELEMENT_EXECUTABLE_NAME) {
                 if (streq(elem.u.name, "exec")) {

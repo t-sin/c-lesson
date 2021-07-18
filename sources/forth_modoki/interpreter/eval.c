@@ -97,35 +97,66 @@ void eval_exec_array(ElementArray *elems) {
 
     while (co_pop(&cont) != CONT_EMPTY) {
         while (cont.pc < cont.exec_array->len) {
+
             Element elem;
-            copy_element(&elem, &cont.exec_array->elements[cont.pc++]);
+            copy_element(&elem, &cont.exec_array->elements[cont.pc]);
 
             if (elem.etype == ELEMENT_EXECUTABLE_NAME) {
                 if (streq(elem.u.name, "exec")) {
                     Element proc;
                     stack_pop(stack, &proc);
+
                     Continuation c = {proc.u.byte_codes, 0};
                     co_push(&c);
-                }
 
-                break;
+                    break;
+
+                } else if (streq(elem.u.name, "jmp")) {
+                    Element n;
+                    stack_pop(stack, &n);
+
+                    if (n.u.number >= cont.exec_array->len - 1) {
+                        co_pop(&cont);
+                    } else {
+                        cont.pc += n.u.number;
+                    }
+
+                } else if (streq(elem.u.name, "jmp_not_if")) {
+                    Element cond, n;
+                    stack_pop(stack, &n);
+                    stack_pop(stack, &cond);
+
+                    if (element_is_false(&cond)) {
+                        if (n.u.number >= cont.exec_array->len - 1) {
+                            co_pop(&cont);
+                        } else {
+                            cont.pc += n.u.number;
+                        }
+                    } else {
+                        cont.pc++;
+                    }
+                }
             }
 
             switch (elem.etype) {
             case ELEMENT_NUMBER:
                 stack_push(stack, &elem);
+                cont.pc++;
                 break;
 
             case ELEMENT_LITERAL_NAME:
                 stack_push(stack, &elem);
+                cont.pc++;
                 break;
 
             case ELEMENT_C_FUNC:
                 elem.u.cfunc();
+                cont.pc++;
                 break;
 
             case ELEMENT_EXEC_ARRAY:
                 stack_push(stack, &elem);
+                cont.pc++;
                 break;
             }
         }
@@ -1130,6 +1161,80 @@ static void test_eval_factorial() {
     assert_stack_integer_contents(expected_stack, expected_length);
 }
 
+static void test_eval_exec_array_jmp_forward() {
+    char *input = "{10 2 jmp 20 30} exec";
+    int expected_stack[] = {10, 30};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_exec_array_jmp_backward() {
+    // 負数のパース処理をつくってないのでまだできない
+
+    // char *input = "{10 -1 jmp 20 30} exec";
+    // int expected_stack[] = {10, 30};
+
+    // eval_with_init(input);
+
+    // int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    // assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_exec_array_jmp_over_exec_array() {
+    char *input = "{10 3 jmp 20 30} exec";
+    int expected_stack[] = {10};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_exec_array_jmp_not_if_not_jump() {
+    char *input = "{10 1 2 jmp_not_if 20 30} exec";
+    int expected_stack[] = {10, 20, 30};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_exec_array_jmp_not_if_forward() {
+    char *input = "{10 0 2 jmp_not_if 20 30} exec";
+    int expected_stack[] = {10, 30};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_exec_array_jmp_not_if_backward() {
+    // 負数のパース処理をつくってないのでまだできない
+
+    // char *input = "{10 -1 jmp 20 30} exec";
+    // int expected_stack[] = {10, 30};
+
+    // eval_with_init(input);
+
+    // int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    // assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_exec_array_jmp_not_if_over_exec_array() {
+    char *input = "{10 0 3 jmp_not_if 20 30} exec";
+    int expected_stack[] = {10};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
 static void test_all() {
     test_eval_num_one();
     test_eval_num_two();
@@ -1211,6 +1316,15 @@ static void test_all() {
 
     // test_eval_complex_case1();
     // test_eval_factorial();
+
+    test_eval_exec_array_jmp_forward();
+    test_eval_exec_array_jmp_over_exec_array();
+    test_eval_exec_array_jmp_backward();
+
+    test_eval_exec_array_jmp_not_if_not_jump();
+    test_eval_exec_array_jmp_not_if_forward();
+    test_eval_exec_array_jmp_not_if_backward();
+    test_eval_exec_array_jmp_not_if_over_exec_array();
 }
 
 #ifdef EVAL_TEST

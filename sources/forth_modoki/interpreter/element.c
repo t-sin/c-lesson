@@ -20,6 +20,10 @@ void copy_element(Element *dest, Element *src) {
         dest->u.cfunc = src->u.cfunc;
         break;
 
+    case ELEMENT_COMPILE_FUNC:
+        dest->u.compile_func = src->u.compile_func;
+        break;
+
     case ELEMENT_EXEC_ARRAY:
         dest->u.byte_codes = src->u.byte_codes;
         break;
@@ -42,6 +46,10 @@ void print_element(Element *e) {
 
     case ELEMENT_C_FUNC:
         printf("<cfunc>");
+        break;
+
+    case ELEMENT_COMPILE_FUNC:
+        printf("<compile_func>");
         break;
 
     case ELEMENT_EXEC_ARRAY:
@@ -73,6 +81,9 @@ int element_equal(Element *a, Element *b) {
 
     case ELEMENT_C_FUNC:
         return a->u.cfunc == b->u.cfunc;
+
+    case ELEMENT_COMPILE_FUNC:
+        return a->u.compile_func == b->u.compile_func;
 
     case ELEMENT_EXEC_ARRAY:
         if (a->u.byte_codes->len != b->u.byte_codes->len) {

@@ -16,6 +16,7 @@
 
 static Stack *stack;
 static Dict *dict;
+static Dict *compile_dict;
 
 //// utilities
 
@@ -46,11 +47,6 @@ void token_to_element(Token *token, Element *out_elem) {
 
 #define MAX_INSTRUCTIONS 256
 
-typedef struct Emitter {
-    Element *elems;
-    int pos;
-} Emitter;
-
 void emit_number(Emitter *emitter, int n) {
     Element elem = {ELEMENT_NUMBER, {n}};
     copy_element(&emitter->elems[emitter->pos++], &elem);
@@ -76,9 +72,20 @@ void compile_ifelse(Emitter *emitter) {
     emit_exec_name(emitter, "exec");
 }
 
+void register_compile_func(char *name, void (*func)(Emitter*)) {
+    Element elem;
+    elem.etype = ELEMENT_COMPILE_FUNC;
+    elem.u.compile_func = func;
+    dict_put(compile_dict, name, &elem);
+}
+
+void register_compile_funcs() {
+    register_compile_func("ifelse", compile_ifelse);
+}
+
 int compile_exec_array(Element *out_elem) {
     Token token;
-    Element elem;
+    Element elem, tmp;
     ElementArray *elem_array;
     int ch = EOF;
 
@@ -97,11 +104,20 @@ int compile_exec_array(Element *out_elem) {
 
         case EXECUTABLE_NAME:
             token_to_element(&token, &elem);
+            int found = dict_get(compile_dict, elem.u.name, &tmp);
 
-            if (streq(elem.u.name, "ifelse")) {
-                Emitter emitter = {array, idx};
-                compile_ifelse(&emitter);
-                idx = emitter.pos;
+            if (found == DICT_FOUND) {
+                if (tmp.etype == ELEMENT_COMPILE_FUNC) {
+                    Emitter emitter = {array, idx};
+                    tmp.u.compile_func(&emitter);
+                    idx = emitter.pos;
+
+                } else {
+                    printf("I think the program never reaches here");
+                    printf("because COMPILE_FUNC is only registered by init func\n");
+                    printf("The NAME IS... %s\n", elem.u.name);
+                    return EOF;
+                }
 
             } else {
                 copy_element(&array[idx++], &elem);
@@ -501,7 +517,9 @@ void eval_with_init(char *input) {
     cl_getc_set_src(input);
     stack = stack_init();
     dict = dict_init();
+    compile_dict = dict_init();
     co_reset();
+    register_compile_funcs();
     register_primitives();
 
     eval();
@@ -510,7 +528,9 @@ void eval_with_init(char *input) {
 void initialize_eval() {
     stack = stack_init();
     dict = dict_init();
+    compile_dict = dict_init();
     register_primitives();
+    register_compile_funcs();
 }
 
 void print_stack() {

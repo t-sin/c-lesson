@@ -183,6 +183,41 @@ int compile_exec_array(Element *out_elem) {
 
 //// byte code interpreter
 
+void eval_exec_op(Continuation *cont) {
+    Element proc;
+    stack_pop(stack, &proc);
+
+    cont->pc++;
+    co_push(cont);
+
+    Continuation c = {proc.u.byte_codes, 0};
+    co_push(&c);
+}
+
+void eval_jmp_op(Continuation *cont) {
+    Element n;
+    stack_pop(stack, &n);
+
+    cont->pc += n.u.number;
+}
+
+void eval_jmp_not_if_op(Continuation *cont) {
+    Element cond, n;
+    stack_pop(stack, &n);
+    stack_pop(stack, &cond);
+
+    if (element_is_false(&cond)) {
+        cont->pc += n.u.number;
+    } else {
+        cont->pc++;
+    }
+}
+
+void eval_pstack_op(Continuation *cont) {
+    stack_print_all(stack);
+    cont->pc++;
+}
+
 void eval_exec_array(ElementArray *elems) {
     Continuation cont = {elems, 0};
     co_push(&cont);
@@ -195,38 +230,26 @@ void eval_exec_array(ElementArray *elems) {
             // print_element(&elem); printf("\n");
 
             if (elem.etype == ELEMENT_PRIMITIVE) {
-                if (elem.u.number == OP_EXEC) {
-                    Element proc;
-                    stack_pop(stack, &proc);
-
-                    cont.pc++;
-                    co_push(&cont);
-
-                    Continuation c = {proc.u.byte_codes, 0};
-                    co_push(&c);
-
+                switch (elem.u.number) {
+                case OP_EXEC:
+                    eval_exec_op(&cont);
                     break;
 
-                } else if (elem.u.number == OP_JMP) {
-                    Element n;
-                    stack_pop(stack, &n);
+                case OP_JMP:
+                    eval_jmp_op(&cont);
+                    break;
 
-                    cont.pc += n.u.number;
+                case OP_JMP_NOT_IF:
+                    eval_jmp_not_if_op(&cont);
+                    break;
 
-                } else if (elem.u.number == OP_JMP_NOT_IF) {
-                    Element cond, n;
-                    stack_pop(stack, &n);
-                    stack_pop(stack, &cond);
+                case OP_PSTACK:
+                    eval_pstack_op(&cont);
+                    break;
+                }
 
-                    if (element_is_false(&cond)) {
-                        cont.pc += n.u.number;
-                    } else {
-                        cont.pc++;
-                    }
-
-                } else if (elem.u.number == OP_PSTACK) {
-                    stack_print_all(stack);
-                    cont.pc++;
+                if (elem.u.number == OP_EXEC) {
+                    break;
                 }
             }
 

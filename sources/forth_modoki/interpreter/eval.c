@@ -44,7 +44,37 @@ void token_to_element(Token *token, Element *out_elem) {
 
 //// byte code compiler
 
-#define MAX_NAME_OP_NUMBERS 256
+#define MAX_INSTRUCTIONS 256
+
+typedef struct Emitter {
+    Element *elems;
+    int pos;
+} Emitter;
+
+void emit_number(Emitter *emitter, int n) {
+    Element elem = {ELEMENT_NUMBER, {n}};
+    copy_element(&emitter->elems[emitter->pos++], &elem);
+}
+
+void emit_exec_name(Emitter *emitter, char *name) {
+    Element elem = {ELEMENT_EXECUTABLE_NAME, {name: name}};
+    copy_element(&emitter->elems[emitter->pos++], &elem);
+}
+
+void compile_ifelse(Emitter *emitter) {
+    emit_number(emitter, 3);
+    emit_number(emitter, 2);
+    emit_exec_name(emitter, "roll");
+    emit_number(emitter, 5);
+    emit_exec_name(emitter, "jmp_not_if");
+    emit_exec_name(emitter, "pop");
+    emit_exec_name(emitter, "exec");
+    emit_number(emitter, 4);
+    emit_exec_name(emitter, "jmp");
+    emit_exec_name(emitter, "exch");
+    emit_exec_name(emitter, "pop");
+    emit_exec_name(emitter, "exec");
+}
 
 int compile_exec_array(Element *out_elem) {
     Token token;
@@ -52,7 +82,7 @@ int compile_exec_array(Element *out_elem) {
     ElementArray *elem_array;
     int ch = EOF;
 
-    Element array[MAX_NAME_OP_NUMBERS];
+    Element array[MAX_INSTRUCTIONS];
     int idx = 0;
 
     do {
@@ -69,25 +99,9 @@ int compile_exec_array(Element *out_elem) {
             token_to_element(&token, &elem);
 
             if (streq(elem.u.name, "ifelse")) {
-                Element code[] = {
-                    {ELEMENT_NUMBER, {3}},
-                    {ELEMENT_NUMBER, {2}},
-                    {ELEMENT_EXECUTABLE_NAME, {name: "roll"}},
-                    {ELEMENT_NUMBER, {5}},
-                    {ELEMENT_EXECUTABLE_NAME, {name: "jmp_not_if"}},
-                    {ELEMENT_EXECUTABLE_NAME, {name: "pop"}},
-                    {ELEMENT_EXECUTABLE_NAME, {name: "exec"}},
-                    {ELEMENT_NUMBER, {4}},
-                    {ELEMENT_EXECUTABLE_NAME, {name: "jmp"}},
-                    {ELEMENT_EXECUTABLE_NAME, {name: "exch"}},
-                    {ELEMENT_EXECUTABLE_NAME, {name: "pop"}},
-                    {ELEMENT_EXECUTABLE_NAME, {name: "exec"}},
-                };
-                int len = sizeof(code) / sizeof(code[0]);
-
-                for (int i = 0; i < len; i++) {
-                    copy_element(&array[idx++], &code[i]);
-                }
+                Emitter emitter = {array, idx};
+                compile_ifelse(&emitter);
+                idx = emitter.pos;
 
             } else {
                 copy_element(&array[idx++], &elem);
@@ -177,7 +191,8 @@ void eval_exec_array(ElementArray *elems) {
                             eval_exec_array(tmp.u.byte_codes);
 
                         } else {
-                            printf("I think the program never reaches here...\n", tmp.u.name);
+                            printf("I think the program never reaches here...\n");
+                            printf("The NAME IS... %s\n", tmp.u.name);
                             return;
                         }
 

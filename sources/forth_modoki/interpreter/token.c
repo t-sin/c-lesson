@@ -26,32 +26,32 @@ void print_token(Token *token) {
     if(token->ltype != UNKNOWN) {
         switch(token->ltype) {
         case NUMBER:
-            printf("num: %d\n", token->u.number);
+            printf("<num:%d>", token->u.number);
             break;
         case COMMENT:
-            printf("comment\n");
+            printf("<comment>");
             break;
         case SPACE:
-            printf("space!\n");
+            printf("<space!>");
             break;
         case OPEN_CURLY:
-            printf("Open curly brace '%c'\n", token->u.onechar);
+            printf("<open-curly>");
             break;
         case CLOSE_CURLY:
-            printf("Close curly brace '%c'\n", token->u.onechar);
+            printf("<close-curly>");
             break;
         case EXECUTABLE_NAME:
-            printf("EXECUTABLE_NAME: %s\n", token->u.name);
+            printf("<exec-name:%s>", token->u.name);
             break;
         case LITERAL_NAME:
-            printf("LITERAL_NAME: %s\n", token->u.name);
+            printf("<lit_name:%s>", token->u.name);
             break;
         case END_OF_FILE:
-            printf("End of file\n");
+            printf("<EOF>");
             break;
 
         default:
-            printf("Unknown type %d\n", token->ltype);
+            printf("<Unknown type %d>", token->ltype);
             break;
         }
     }

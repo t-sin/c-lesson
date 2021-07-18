@@ -29,32 +29,32 @@ void copy_element(Element *dest, Element *src) {
 void print_element(Element *e) {
     switch(e->etype) {
     case ELEMENT_NUMBER:
-        printf("number: %d\n", e->u.number);
+        printf("<num:%d>", e->u.number);
         break;
 
     case ELEMENT_EXECUTABLE_NAME:
-        printf("executable name: %s\n", e->u.name);
+        printf("<exec-name:%s>", e->u.name);
         break;
 
     case ELEMENT_LITERAL_NAME:
-        printf("literal name: %s\n", e->u.name);
+        printf("<lit-name:%s>", e->u.name);
         break;
 
     case ELEMENT_C_FUNC:
-        printf("C function: *\n");
+        printf("<cfunc>");
         break;
 
     case ELEMENT_EXEC_ARRAY:
-        printf("executable array:\n");
-        printf("length = %d\n", e->u.byte_codes->len);
+        printf("<exec-array:%d,{", e->u.byte_codes->len);
         for (int i = 0; i < e->u.byte_codes->len; i++) {
-            printf("  ");
+            printf(" ");
             print_element(&e->u.byte_codes->elements[i]);
         }
+        printf("}>");
         break;
 
     default:
-        printf("unkown element: %d\n", e->etype);
+        printf("<unknown:%d>", e->etype);
     }
 }
 

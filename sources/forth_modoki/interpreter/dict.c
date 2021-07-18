@@ -96,15 +96,18 @@ int dict_get(Dict *dict, char *key, Element *out_elem) {
 }
 
 void dict_print_all(Dict *dict) {
+    printf("--- dict ---\n");
     for (int i = 0; i < dict->length; i++) {
         if (dict->array[i] != NULL) {
             DictEntry *head = dict->array[i];
             for (; head != NULL; head = head->next) {
-                printf("[dict] %s: ", head->key);
+                printf("  %s: ", head->key);
                 print_element(&head->value);
+                printf("\n");
             }
         }
     }
+    printf("--- dict end---\n");
 }
 
 //// unit tests

@@ -70,11 +70,12 @@ int stack_set(Stack *stack, int n, Element *elem) {
 }
 
 void stack_print_all(Stack *stack) {
-    printf("*****\n");
+    printf("--- stack bottom ---\n");
     for (int i = 0; i < stack->top; i++) {
-        printf("  ");
         print_element(&stack->array[i]);
+        printf("\n");
     }
+    printf("--- stack top    ---\n\n");
 }
 
 int stack_is_empty(Stack *stack) {

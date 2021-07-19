@@ -249,36 +249,6 @@ void eval_exec_array(ElementArray *elems) {
                 }
 
             } else if (elem.etype == ELEMENT_EXECUTABLE_NAME) {
-                if (streq(elem.u.name, "while")) {
-                    Element cond, proc;
-                    stack_pop(stack, &proc);
-                    stack_pop(stack, &cond);
-
-                    Element code[] = {
-                        cond,
-                        {ELEMENT_PRIMITIVE, {OP_EXEC}},
-                        {ELEMENT_NUMBER, {5}},
-                        {ELEMENT_PRIMITIVE, {OP_JMP_NOT_IF}},
-                        proc,
-                        {ELEMENT_PRIMITIVE, {OP_EXEC}},
-                        {ELEMENT_NUMBER, {-7}},
-                        {ELEMENT_PRIMITIVE, {OP_JMP}},
-                    };
-                    int len = sizeof(code) / sizeof(code[0]);
-
-                    cont.pc++;
-                    co_push(&cont);
-
-                    Continuation c;
-                    c.exec_array = (ElementArray *)malloc(sizeof(ElementArray) + sizeof(Element) * len);
-                    c.exec_array->len = len;
-                    memcpy(c.exec_array->elements, code, sizeof(Element) * len);
-                    c.pc = 0;
-
-                    co_push(&c);
-                    break;
-                }
-
                 Element tmp;
                 int found = dict_get(dict, elem.u.name, &tmp);
 
@@ -1118,8 +1088,8 @@ static void test_eval_while_four_loops() {
 }
 
 static void test_eval_while_nested_loops() {
-    char *input = "100 {0 {dup 20 lt} {dup 10 add} while} exec pstack";
-    int expected_stack[] = {100, 0, 10, 20};
+    char *input = "100 2 {dup 0 gt} {0 {dup 20 lt} {dup 10 add} while 3 2 roll pop exch 2 1 roll 2 index 1 sub} while";
+    int expected_stack[] = {100, 2, 10, 20, 1, 10, 20, 0};
 
     eval_with_init(input);
 
@@ -1480,7 +1450,7 @@ static void test_all() {
     // test_eval_while_no_loops();
     // test_eval_while_one_loop();
     // test_eval_while_four_loops();
-    test_eval_while_nested_loops();
+    // test_eval_while_nested_loops();
     // test_eval_while_insufficient_args();
 
     test_eval_exec_array_with_a_number();

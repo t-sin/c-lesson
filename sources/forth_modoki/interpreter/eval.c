@@ -49,7 +49,6 @@ typedef enum Instruction {
     OP_EXEC,
     OP_JMP,
     OP_JMP_NOT_IF,
-    OP_PSTACK,
 } Instruction;
 
 #define MAX_INSTRUCTIONS 256
@@ -81,10 +80,6 @@ void compile_jmp_not_if(Emitter *emitter) {
     emit_op(emitter, OP_JMP_NOT_IF);
 }
 
-void compile_pstack(Emitter *emitter) {
-    emit_op(emitter, OP_PSTACK);
-}
-
 void compile_ifelse(Emitter *emitter) {
     emit_number(emitter, 3);
     emit_number(emitter, 2);
@@ -111,7 +106,6 @@ void register_compile_funcs() {
     register_compile_func("exec", compile_exec);
     register_compile_func("jmp", compile_jmp);
     register_compile_func("jmp_not_if", compile_jmp_not_if);
-    register_compile_func("pstack", compile_pstack);
 
     register_compile_func("ifelse", compile_ifelse);
 }
@@ -213,11 +207,6 @@ void eval_jmp_not_if_op(Continuation *cont) {
     }
 }
 
-void eval_pstack_op(Continuation *cont) {
-    stack_print_all(stack);
-    cont->pc++;
-}
-
 void eval_exec_array(ElementArray *elems) {
     Continuation cont = {elems, 0};
     co_push(&cont);
@@ -241,10 +230,6 @@ void eval_exec_array(ElementArray *elems) {
 
                 case OP_JMP_NOT_IF:
                     eval_jmp_not_if_op(&cont);
-                    break;
-
-                case OP_PSTACK:
-                    eval_pstack_op(&cont);
                     break;
                 }
 

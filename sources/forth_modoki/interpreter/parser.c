@@ -24,6 +24,10 @@ int is_newline(int c) {
     return c == '\n';
 }
 
+int is_minus(int c) {
+    return c == '-';
+}
+
 int is_numeric(int c) {
     return '0' <= c && c <= '9';
 }
@@ -104,6 +108,16 @@ int parse_one(int prev_ch, Token *out_token) {
         out_token->u.number = str2int(buf, pos);
         return c;
 
+    } else if (is_minus(c)) {
+        c = cl_getc();
+        do {
+            buf[pos++] = c;
+        } while (c = cl_getc(), is_numeric(c));
+
+        out_token->ltype = NUMBER;
+        out_token->u.number = -str2int(buf, pos);
+        return c;
+
     } else if (is_space(c)) {
         while (c = cl_getc(), is_space(c));
         out_token->ltype = SPACE;
@@ -156,6 +170,21 @@ void parser_print_all() {
 static void test_parse_one_number() {
     char *input = "123";
     Token expected = {NUMBER, {123}};
+
+    Token token;
+    int ch;
+
+    cl_getc_set_src(input);
+
+    ch = parse_one(EOF, &token);
+
+    assert(ch == EOF);
+    assert(token_equal(&token, &expected));
+}
+
+static void test_parse_one_negative_number() {
+    char *input = "-123";
+    Token expected = {NUMBER, {-123}};
 
     Token token;
     int ch;
@@ -328,6 +357,7 @@ static void test_parse_one_comment_without_newline() {
 static void unit_tests() {
     test_parse_one_empty_should_return_END_OF_FILE();
     test_parse_one_number();
+    test_parse_one_negative_number();
 
     test_parse_one_executable_name();
     test_parse_one_literal_name();

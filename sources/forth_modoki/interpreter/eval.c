@@ -225,7 +225,15 @@ void eval_exec_array(ElementArray *elems) {
     Continuation cont = {CONT_CONT, {elems, 0}};
     co_push(&cont);
 
-    while (co_pop(&cont) != CONT_EMPTY) {
+    while (1) {
+        int ret;
+        do {
+            ret = co_pop(&cont);
+        } while (ret != CONT_EMPTY && cont.ctype != CONT_CONT);
+
+        // 以降はcont.ctypeがCONT_CONTじゃないと入ってはだめなので。
+        if (ret == CONT_EMPTY) break;
+
         while (cont.u.c.pc < cont.u.c.exec_array->len) {
 
             Element elem;

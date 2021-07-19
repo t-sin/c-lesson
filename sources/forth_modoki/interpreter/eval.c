@@ -236,9 +236,8 @@ void eval_exec_array(ElementArray *elems) {
                 if (elem.u.number == OP_EXEC) {
                     break;
                 }
-            }
 
-            if (elem.etype == ELEMENT_EXECUTABLE_NAME) {
+            } else if (elem.etype == ELEMENT_EXECUTABLE_NAME) {
                 Element tmp;
                 int found = dict_get(dict, elem.u.name, &tmp);
 
@@ -261,28 +260,29 @@ void eval_exec_array(ElementArray *elems) {
                 }
 
                 cont.pc++;
-            }
 
-            switch (elem.etype) {
-            case ELEMENT_NUMBER:
-                stack_push(stack, &elem);
-                cont.pc++;
-                break;
+            } else {
+                switch (elem.etype) {
+                case ELEMENT_NUMBER:
+                    stack_push(stack, &elem);
+                    cont.pc++;
+                    break;
 
-            case ELEMENT_LITERAL_NAME:
-                stack_push(stack, &elem);
-                cont.pc++;
-                break;
+                case ELEMENT_LITERAL_NAME:
+                    stack_push(stack, &elem);
+                    cont.pc++;
+                    break;
 
-            case ELEMENT_C_FUNC:
-                elem.u.cfunc();
-                cont.pc++;
-                break;
+                case ELEMENT_C_FUNC:
+                    elem.u.cfunc();
+                    cont.pc++;
+                    break;
 
-            case ELEMENT_EXEC_ARRAY:
-                stack_push(stack, &elem);
-                cont.pc++;
-                break;
+                case ELEMENT_EXEC_ARRAY:
+                    stack_push(stack, &elem);
+                    cont.pc++;
+                    break;
+                }
             }
         }
     }

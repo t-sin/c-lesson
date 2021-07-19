@@ -95,6 +95,16 @@ void compile_ifelse(Emitter *emitter) {
     emit_op(emitter, OP_EXEC);
 }
 
+void compile_if(Emitter *emitter) {
+    emit_exec_name(emitter, "exch");
+    emit_number(emitter, 4);
+    emit_op(emitter, OP_JMP_NOT_IF);
+    emit_op(emitter, OP_EXEC);
+    emit_number(emitter, 2);
+    emit_op(emitter, OP_JMP);
+    emit_exec_name(emitter, "pop");
+}
+
 void register_compile_func(char *name, void (*func)(Emitter*)) {
     Element elem;
     elem.etype = ELEMENT_COMPILE_FUNC;
@@ -107,6 +117,7 @@ void register_compile_funcs() {
     register_compile_func("jmp", compile_jmp);
     register_compile_func("jmp_not_if", compile_jmp_not_if);
 
+    register_compile_func("if", compile_if);
     register_compile_func("ifelse", compile_ifelse);
 }
 
@@ -1423,10 +1434,10 @@ static void test_all() {
     test_eval_exec_nested();
     test_eval_exec_proceed_next_elem();
 
-    // test_eval_if_when_true();
-    // test_eval_if_when_false();
-    // test_eval_if_nested_when_true();
-    // test_eval_if_proceed_next_elem();;
+    test_eval_if_when_true();
+    test_eval_if_when_false();
+    test_eval_if_nested_when_true();
+    test_eval_if_proceed_next_elem();
 
     test_eval_ifelse_when_true();
     test_eval_ifelse_when_false();

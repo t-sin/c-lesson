@@ -1466,10 +1466,10 @@ static void test_all() {
     test_eval_nested_exec_array();
 
     test_eval_invoke_exec_array_with_a_number();
-    //test_eval_invoke_nested_exec_array();
-    //test_eval_invoke_nested_exec_array2();
+    test_eval_invoke_nested_exec_array();
+    test_eval_invoke_nested_exec_array2();
 
-    // test_eval_complex_case1();
+    test_eval_complex_case1();
     // test_eval_factorial();
 }
 

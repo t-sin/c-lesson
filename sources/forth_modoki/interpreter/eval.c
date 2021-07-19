@@ -1317,15 +1317,13 @@ static void test_eval_exec_array_jmp_forward() {
 }
 
 static void test_eval_exec_array_jmp_backward() {
-    // 負数のパース処理をつくってないのでまだできない
+    char *input = "{10 4 jmp 20 3 jmp -4 jmp 30} exec";
+    int expected_stack[] = {10, 20, 30};
 
-    // char *input = "{10 -1 jmp 20 30} exec";
-    // int expected_stack[] = {10, 30};
+    eval_with_init(input);
 
-    // eval_with_init(input);
-
-    // int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
-    // assert_stack_integer_contents(expected_stack, expected_length);
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
 }
 
 static void test_eval_exec_array_jmp_over_exec_array() {
@@ -1359,15 +1357,13 @@ static void test_eval_exec_array_jmp_not_if_forward() {
 }
 
 static void test_eval_exec_array_jmp_not_if_backward() {
-    // 負数のパース処理をつくってないのでまだできない
+    char *input = "{10 0 4 jmp 20 3 jmp -4 jmp_not_if 30} exec";
+    int expected_stack[] = {10, 20, 30};
 
-    // char *input = "{10 -1 jmp 20 30} exec";
-    // int expected_stack[] = {10, 30};
+    eval_with_init(input);
 
-    // eval_with_init(input);
-
-    // int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
-    // assert_stack_integer_contents(expected_stack, expected_length);
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
 }
 
 static void test_eval_exec_array_jmp_not_if_over_exec_array() {

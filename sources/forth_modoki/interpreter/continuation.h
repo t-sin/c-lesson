@@ -6,10 +6,23 @@
 #define CONT_FULL -1
 #define CONT_EMPTY -2
 
+typedef enum ContType {
+    CONT_CONT,
+    CONT_ELEMENT,
+} ContType;
+
 typedef struct Continuation {
-    ElementArray *exec_array;
-    int pc;
+    ContType ctype;
+    union {
+        struct {
+            ElementArray *exec_array;
+            int pc;
+        } c;
+        Element e;
+    } u;
 } Continuation;
+
+void cont_proceed(Continuation *cont, int n);
 
 void co_reset();
 int co_length();

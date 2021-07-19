@@ -49,6 +49,8 @@ typedef enum Instruction {
     OP_EXEC,
     OP_JMP,
     OP_JMP_NOT_IF,
+    OP_STORE,
+    OP_LOAD,
 } Instruction;
 
 #define MAX_INSTRUCTIONS 256
@@ -68,17 +70,16 @@ void emit_op(Emitter *emitter, Instruction op) {
     copy_element(&emitter->elems[emitter->pos++], &elem);
 }
 
-void compile_exec(Emitter *emitter) {
-    emit_op(emitter, OP_EXEC);
-}
+#define define_compile_op(fnname, inst) \
+  void fnname(Emitter *emitter) { \
+    emit_op(emitter, (inst)); \
+  }
 
-void compile_jmp(Emitter *emitter) {
-    emit_op(emitter, OP_JMP);
-}
-
-void compile_jmp_not_if(Emitter *emitter) {
-    emit_op(emitter, OP_JMP_NOT_IF);
-}
+define_compile_op(compile_exec, OP_EXEC);
+define_compile_op(compile_jmp, OP_JMP);
+define_compile_op(compile_jmp_not_if, OP_JMP_NOT_IF);
+define_compile_op(compile_store, OP_STORE);
+define_compile_op(compile_load, OP_LOAD);
 
 void compile_ifelse(Emitter *emitter) {
     emit_number(emitter, 3);
@@ -116,6 +117,8 @@ void register_compile_funcs() {
     register_compile_func("exec", compile_exec);
     register_compile_func("jmp", compile_jmp);
     register_compile_func("jmp_not_if", compile_jmp_not_if);
+    register_compile_func("store", compile_store);
+    register_compile_func("load", compile_load);
 
     register_compile_func("if", compile_if);
     register_compile_func("ifelse", compile_ifelse);
@@ -192,10 +195,10 @@ void eval_exec_op(Continuation *cont) {
     Element proc;
     stack_pop(stack, &proc);
 
-    cont->pc++;
+    cont_proceed(cont, 1);
     co_push(cont);
 
-    Continuation c = {proc.u.byte_codes, 0};
+    Continuation c = {CONT_CONT, {proc.u.byte_codes, 0}};
     co_push(&c);
 }
 
@@ -203,7 +206,7 @@ void eval_jmp_op(Continuation *cont) {
     Element n;
     stack_pop(stack, &n);
 
-    cont->pc += n.u.number;
+    cont_proceed(cont, n.u.number);
 }
 
 void eval_jmp_not_if_op(Continuation *cont) {
@@ -212,21 +215,21 @@ void eval_jmp_not_if_op(Continuation *cont) {
     stack_pop(stack, &cond);
 
     if (element_is_false(&cond)) {
-        cont->pc += n.u.number;
+        cont_proceed(cont, n.u.number);
     } else {
-        cont->pc++;
+        cont_proceed(cont, 1);
     }
 }
 
 void eval_exec_array(ElementArray *elems) {
-    Continuation cont = {elems, 0};
+    Continuation cont = {CONT_CONT, {elems, 0}};
     co_push(&cont);
 
     while (co_pop(&cont) != CONT_EMPTY) {
-        while (cont.pc < cont.exec_array->len) {
+        while (cont.u.c.pc < cont.u.c.exec_array->len) {
 
             Element elem;
-            copy_element(&elem, &cont.exec_array->elements[cont.pc]);
+            copy_element(&elem, &cont.u.c.exec_array->elements[cont.u.c.pc]);
             // print_element(&elem); printf("\n");
 
             if (elem.etype == ELEMENT_PRIMITIVE) {
@@ -270,34 +273,35 @@ void eval_exec_array(ElementArray *elems) {
                     return;
                 }
 
-                cont.pc++;
+                cont_proceed(&cont, 1);
 
             } else {
                 switch (elem.etype) {
                 case ELEMENT_NUMBER:
                     stack_push(stack, &elem);
-                    cont.pc++;
+                    cont_proceed(&cont, 1);
                     break;
 
                 case ELEMENT_LITERAL_NAME:
                     stack_push(stack, &elem);
-                    cont.pc++;
+                    cont_proceed(&cont, 1);
                     break;
 
                 case ELEMENT_C_FUNC:
                     elem.u.cfunc();
-                    cont.pc++;
+                    cont_proceed(&cont, 1);
                     break;
 
                 case ELEMENT_EXEC_ARRAY:
                     stack_push(stack, &elem);
-                    cont.pc++;
+                    cont_proceed(&cont, 1);
                     break;
                 }
             }
         }
     }
 }
+
 
 //// interpreter
 

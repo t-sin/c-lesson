@@ -5,6 +5,8 @@
 #include "continuation.h"
 
 void copy_continuation(Continuation *dest, Continuation *src) {
+    dest->ctype = src->ctype;
+
     switch (src->ctype) {
     case CONT_CONT:
         dest->u.c.exec_array = src->u.c.exec_array;
@@ -38,8 +40,6 @@ int co_length() {
 
 int co_push(Continuation *cont) {
     if (co_stack_pos < CONT_MAX_DEPTH) {
-        co_stack[co_stack_pos].ctype = cont->ctype;
-
         copy_continuation(&co_stack[co_stack_pos], cont);
         co_stack_pos++;
 

@@ -51,6 +51,7 @@ typedef enum Instruction {
     OP_JMP_NOT_IF,
     OP_STORE,
     OP_LOAD,
+    OP_LPOP,
 } Instruction;
 
 #define MAX_INSTRUCTIONS 256
@@ -80,6 +81,7 @@ define_compile_op(compile_jmp, OP_JMP);
 define_compile_op(compile_jmp_not_if, OP_JMP_NOT_IF);
 define_compile_op(compile_store, OP_STORE);
 define_compile_op(compile_load, OP_LOAD);
+define_compile_op(compile_lpop, OP_LPOP);
 
 void compile_ifelse(Emitter *emitter) {
     emit_number(emitter, 3);
@@ -134,6 +136,7 @@ void register_compile_funcs() {
     register_compile_func("jmp_not_if", compile_jmp_not_if);
     register_compile_func("store", compile_store);
     register_compile_func("load", compile_load);
+    register_compile_func("lpop", compile_lpop);
 
     register_compile_func("if", compile_if);
     register_compile_func("ifelse", compile_ifelse);
@@ -274,6 +277,17 @@ void eval_load_op(Continuation *cont) {
     cont_proceed(cont, 1);
 }
 
+void eval_lpop_op(Continuation *cont) {
+    Continuation c;
+    co_peek(0, &c);
+
+    if (c.ctype == CONT_ELEMENT) {
+        co_pop(&c);
+    }
+
+    cont_proceed(cont, 1);
+}
+
 void eval_exec_array(ElementArray *elems) {
     Continuation cont = {CONT_CONT, {elems, 0}};
     co_push(&cont);
@@ -310,6 +324,10 @@ void eval_exec_array(ElementArray *elems) {
 
                 case OP_LOAD:
                     eval_load_op(&cont);
+                    break;
+
+                case OP_LPOP:
+                    eval_lpop_op(&cont);
                     break;
                 }
 
@@ -1456,6 +1474,17 @@ static void test_eval_exec_array_store_and_load_three_times() {
     assert_stack_integer_contents(expected_stack, expected_length);
 }
 
+static void test_eval_exec_array_store_load_and_lpop() {
+    char *input = "0 {10 store 20 store 0 load lpop 0 load} exec";
+    int expected_ctype = CONT_ELEMENT;
+    int expected_stack[] = {0, 20, 10};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
 static void test_eval_exec_array_jmp_not_if_backward() {
     char *input = "{10 0 4 jmp 20 3 jmp -4 jmp_not_if 30} exec";
     int expected_stack[] = {10, 20, 30};
@@ -1528,6 +1557,7 @@ static void test_all() {
 
     test_eval_exec_array_store_and_load();
     test_eval_exec_array_store_and_load_three_times();
+    test_eval_exec_array_store_load_and_lpop();
 
     test_eval_exec();
     test_eval_exec_nested();

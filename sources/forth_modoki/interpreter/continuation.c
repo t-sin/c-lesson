@@ -113,6 +113,8 @@ static void test_push_to_full_stack() {
     Continuation cont = {CONT_CONT, {NULL, 32}};
     int ret;
 
+    co_stack_pos = 0;
+
     for (int i = 0; i <= CONT_MAX_DEPTH - 1; i++) {
         ret = co_push(&cont);
         assert(ret != CONT_FULL);

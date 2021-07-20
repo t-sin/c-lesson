@@ -233,16 +233,13 @@ void eval_exec_array(ElementArray *elems) {
     co_push(&cont);
 
     while (1) {
-        int ret;
         do {
-            ret = co_pop(&cont);
-        } while (ret != CONT_EMPTY && cont.ctype != CONT_CONT);
-
-        // 以降はcont.ctypeがCONT_CONTじゃないと入ってはだめなので。
-        if (ret == CONT_EMPTY) break;
+            if (co_pop(&cont) == CONT_EMPTY) {
+                return;
+            }
+        } while (cont.ctype != CONT_CONT);
 
         while (cont.u.c.pc < cont.u.c.exec_array->len) {
-
             Element elem;
             copy_element(&elem, &cont.u.c.exec_array->elements[cont.u.c.pc]);
             // print_element(&elem); printf("\n");

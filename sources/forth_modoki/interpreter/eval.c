@@ -260,8 +260,12 @@ void eval_load_op(Continuation *cont) {
     Element n;
     stack_pop(stack, &n);
 
+    assert(n.etype == ELEMENT_NUMBER);
+
     Continuation c;
     co_peek(n.u.number, &c);
+
+    assert(c.ctype == CONT_ELEMENT);
 
     Element elem;
     copy_element(&elem, &c.u.e);

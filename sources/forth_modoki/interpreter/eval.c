@@ -106,6 +106,21 @@ void compile_if(Emitter *emitter) {
     emit_exec_name(emitter, "pop");
 }
 
+void compile_while(Emitter *emitter) {
+    emit_op(emitter, OP_STORE);
+    emit_op(emitter, OP_STORE);
+    emit_number(emitter, 0);
+    emit_op(emitter, OP_LOAD);
+    emit_op(emitter, OP_EXEC);
+    emit_number(emitter, 6);
+    emit_op(emitter, OP_JMP_NOT_IF);
+    emit_number(emitter, 1);
+    emit_op(emitter, OP_LOAD);
+    emit_op(emitter, OP_EXEC);
+    emit_number(emitter, -9);
+    emit_op(emitter, OP_JMP);
+}
+
 void register_compile_func(char *name, void (*func)(Emitter*)) {
     Element elem;
     elem.etype = ELEMENT_COMPILE_FUNC;
@@ -122,6 +137,7 @@ void register_compile_funcs() {
 
     register_compile_func("if", compile_if);
     register_compile_func("ifelse", compile_ifelse);
+    register_compile_func("while", compile_while);
 }
 
 int compile_exec_array(Element *out_elem) {
@@ -1530,11 +1546,11 @@ static void test_all() {
     // // test_eval_repeat_nested_three_loops();
     // // test_eval_repeat_insufficient_args();
 
-    // test_eval_while_no_loops();
-    // test_eval_while_one_loop();
-    // test_eval_while_four_loops();
-    // test_eval_while_nested_loops();
-    // test_eval_while_insufficient_args();
+    test_eval_while_no_loops();
+    test_eval_while_one_loop();
+    test_eval_while_four_loops();
+    test_eval_while_nested_loops();
+    test_eval_while_insufficient_args();
 
     test_eval_exec_array_with_a_number();
     test_eval_exec_array_with_a_literal_name();
@@ -1549,7 +1565,7 @@ static void test_all() {
     test_eval_invoke_nested_exec_array2();
 
     test_eval_complex_case1();
-    // test_eval_factorial();
+    test_eval_factorial();
 }
 
 #ifdef EVAL_TEST

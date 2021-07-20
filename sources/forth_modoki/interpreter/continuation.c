@@ -4,6 +4,19 @@
 #include "element.h"
 #include "continuation.h"
 
+void copy_continuation(Continuation *dest, Continuation *src) {
+    switch (src->ctype) {
+    case CONT_CONT:
+        dest->u.c.exec_array = src->u.c.exec_array;
+        dest->u.c.pc = src->u.c.pc;
+        break;
+
+    case CONT_ELEMENT:
+        copy_element(&dest->u.e, &src->u.e);
+        break;
+    }
+}
+
 void cont_proceed(Continuation *cont, int n) {
     cont->u.c.pc += n;
 }
@@ -25,18 +38,9 @@ int co_push(Continuation *cont) {
     if (co_stack_pos < CONT_MAX_DEPTH) {
         co_stack[co_stack_pos].ctype = cont->ctype;
 
-        switch (cont->ctype) {
-        case CONT_CONT:
-            co_stack[co_stack_pos].u.c.exec_array = cont->u.c.exec_array;
-            co_stack[co_stack_pos].u.c.pc = cont->u.c.pc;
-            break;
-
-        case CONT_ELEMENT:
-            copy_element(&co_stack[co_stack_pos].u.e, &cont->u.e);
-            break;
-        }
-
+        copy_continuation(&co_stack[co_stack_pos], cont);
         co_stack_pos++;
+
         return co_stack_pos;
     }
 
@@ -49,16 +53,7 @@ int co_pop(Continuation *out_cont) {
     }
 
     co_stack_pos--;
-
-    switch (co_stack[co_stack_pos].ctype) {
-    case CONT_CONT:
-        out_cont->u.c.exec_array = co_stack[co_stack_pos].u.c.exec_array;
-        out_cont->u.c.pc = co_stack[co_stack_pos].u.c.pc;
-        break;
-
-    case CONT_ELEMENT:
-        copy_element(&out_cont->u.e, &co_stack[co_stack_pos].u.e);
-    }
+    copy_continuation(out_cont, &co_stack[co_stack_pos]);
 
     return co_stack_pos;
 }

@@ -22,6 +22,7 @@ typedef struct Continuation {
     } u;
 } Continuation;
 
+void copy_continuation(Continuation *dest, Continuation *src);
 void cont_proceed(Continuation *cont, int n);
 
 void co_reset();

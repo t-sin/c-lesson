@@ -228,6 +228,32 @@ void eval_jmp_not_if_op(Continuation *cont) {
     }
 }
 
+void eval_store_op(Continuation *cont) {
+    Element elem;
+    stack_pop(stack, &elem);
+
+    Continuation c;
+    c.ctype = CONT_ELEMENT;
+    copy_element(&c.u.e, &elem);
+
+    co_push(&c);
+    cont_proceed(cont, 1);
+}
+
+void eval_load_op(Continuation *cont) {
+    Element n;
+    stack_pop(stack, &n);
+
+    Continuation c;
+    co_peek(n.u.number, &c);
+
+    Element elem;
+    copy_element(&elem, &c.u.e);
+    stack_push(stack, &elem);
+
+    cont_proceed(cont, 1);
+}
+
 void eval_exec_array(ElementArray *elems) {
     Continuation cont = {CONT_CONT, {elems, 0}};
     co_push(&cont);
@@ -256,6 +282,14 @@ void eval_exec_array(ElementArray *elems) {
 
                 case OP_JMP_NOT_IF:
                     eval_jmp_not_if_op(&cont);
+                    break;
+
+                case OP_STORE:
+                    eval_store_op(&cont);
+                    break;
+
+                case OP_LOAD:
+                    eval_load_op(&cont);
                     break;
                 }
 
@@ -1380,6 +1414,28 @@ static void test_eval_exec_array_jmp_not_if_forward() {
     assert_stack_integer_contents(expected_stack, expected_length);
 }
 
+static void test_eval_exec_array_store_and_load() {
+    char *input = "0 {10 store 0 load} exec";
+    int expected_ctype = CONT_ELEMENT;
+    int expected_stack[] = {0, 10};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_exec_array_store_and_load_three_times() {
+    char *input = "0 {10 store 20 store 0 load 1 load 0 load} exec";
+    int expected_ctype = CONT_ELEMENT;
+    int expected_stack[] = {0, 20, 10, 20};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
 static void test_eval_exec_array_jmp_not_if_backward() {
     char *input = "{10 0 4 jmp 20 3 jmp -4 jmp_not_if 30} exec";
     int expected_stack[] = {10, 20, 30};
@@ -1449,6 +1505,9 @@ static void test_all() {
     test_eval_exec_array_jmp_not_if_forward();
     test_eval_exec_array_jmp_not_if_backward();
     test_eval_exec_array_jmp_not_if_over_exec_array();
+
+    test_eval_exec_array_store_and_load();
+    test_eval_exec_array_store_and_load_three_times();
 
     test_eval_exec();
     test_eval_exec_nested();

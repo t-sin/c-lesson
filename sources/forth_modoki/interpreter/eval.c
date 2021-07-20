@@ -123,6 +123,32 @@ void compile_while(Emitter *emitter) {
     emit_op(emitter, OP_JMP);
 }
 
+void compile_repeat(Emitter *emitter) {
+    emit_op(emitter, OP_STORE);
+    emit_op(emitter, OP_STORE);
+
+    emit_number(emitter, 0);
+    emit_op(emitter, OP_LOAD);
+    emit_number(emitter, 0);
+    emit_exec_name(emitter, "gt");
+    emit_number(emitter, 12);
+    emit_op(emitter, OP_JMP_NOT_IF);
+
+    emit_number(emitter, 1);
+    emit_op(emitter, OP_LOAD);
+    emit_op(emitter, OP_EXEC);
+
+    emit_number(emitter, 0);
+    emit_op(emitter, OP_LOAD);
+    emit_op(emitter, OP_LPOP);
+    emit_number(emitter, 1);
+    emit_exec_name(emitter, "sub");
+    emit_op(emitter, OP_STORE);
+
+    emit_number(emitter, -16);
+    emit_op(emitter, OP_JMP);
+}
+
 void register_compile_func(char *name, void (*func)(Emitter*)) {
     Element elem;
     elem.etype = ELEMENT_COMPILE_FUNC;
@@ -141,6 +167,7 @@ void register_compile_funcs() {
     register_compile_func("if", compile_if);
     register_compile_func("ifelse", compile_ifelse);
     register_compile_func("while", compile_while);
+    register_compile_func("repeat", compile_repeat);
 }
 
 int compile_exec_array(Element *out_elem) {
@@ -1213,6 +1240,46 @@ static void test_eval_while_insufficient_args() {
     assert_stack_integer_contents(expected_stack, expected_length);
 }
 
+static void test_eval_repeat_no_loops() {
+    char *input = "100 0 {1} repeat";
+    int expected_stack[] = {100};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_repeat_three_loops() {
+    char *input = "100 3 {1} repeat";
+    int expected_stack[] = {100, 1, 1, 1};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_repeat_nested_three_loops() {
+    char *input = "100 {3 {1} repeat 100} exec";
+    int expected_stack[] = {100, 1, 1, 1, 100};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
+static void test_eval_repeat_insufficient_args() {
+    char *input = "100 3 /a {{1}} def {a repeat 100} exec";
+    int expected_stack[] = {100, 1, 1, 1, 100};
+
+    eval_with_init(input);
+
+    int expected_length = sizeof(expected_stack) / sizeof(expected_stack[0]);
+    assert_stack_integer_contents(expected_stack, expected_length);
+}
+
 // executable arrays
 
 static void test_eval_exec_array_with_a_number() {
@@ -1574,11 +1641,10 @@ static void test_all() {
     test_eval_ifelse_proceed_next_elem();
     test_eval_ifelse_insufficient_args();
 
-    // // repeatはまだプリミティブとして実装してないのでテスト追加しない
-    // // test_eval_repeat_no_loops();
-    // // test_eval_repeat_three_loops();
-    // // test_eval_repeat_nested_three_loops();
-    // // test_eval_repeat_insufficient_args();
+    test_eval_repeat_no_loops();
+    test_eval_repeat_three_loops();
+    test_eval_repeat_nested_three_loops();
+    test_eval_repeat_insufficient_args();
 
     test_eval_while_no_loops();
     test_eval_while_one_loop();

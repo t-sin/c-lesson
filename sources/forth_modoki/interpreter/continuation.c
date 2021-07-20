@@ -58,6 +58,17 @@ int co_pop(Continuation *out_cont) {
     return co_stack_pos;
 }
 
+int co_peek(int n, Continuation *out_cont) {
+    if (co_stack_pos == 0) {
+        return CONT_EMPTY;
+    }
+
+    int pos = co_stack_pos - 1 - n;
+    copy_continuation(out_cont, &co_stack[pos]);
+
+    return n;
+}
+
 static void test_pop_from_empty_stack() {
     int expected_ret = CONT_EMPTY;
 
@@ -101,6 +112,24 @@ static void test_pop_one_exec_array() {
     assert(cont.u.c.pc == expected.u.c.pc);
 }
 
+static void test_peek_one_exec_array() {
+    Continuation input_cont = {CONT_CONT, {NULL, 42}};
+    int input_n = 0;
+    Continuation expected = {CONT_CONT, {NULL, 42}};
+    int expected_ret = 0;
+    int expected_pos = 1;
+
+    co_stack_pos = 0;
+    co_push(&input_cont);
+
+    Continuation cont;
+    int ret = co_peek(input_n, &cont);
+
+    assert(ret == expected_ret);
+    assert(co_stack_pos == expected_pos);
+    assert(cont.u.c.pc == expected.u.c.pc);
+}
+
 static void test_push_to_full_stack() {
     int expected_ret = CONT_FULL;
     int expected_pos = CONT_MAX_DEPTH;
@@ -125,6 +154,7 @@ static void test_all() {
     test_pop_from_empty_stack();
     test_push_one_exec_array();
     test_pop_one_exec_array();
+    test_peek_one_exec_array();
     test_push_to_full_stack();
 }
 

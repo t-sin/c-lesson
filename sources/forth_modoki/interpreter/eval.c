@@ -195,6 +195,8 @@ void eval_exec_op(Continuation *cont) {
     Element proc;
     stack_pop(stack, &proc);
 
+    assert(proc.etype == ELEMENT_EXEC_ARRAY);
+
     cont_proceed(cont, 1);
     co_push(cont);
 
@@ -206,6 +208,8 @@ void eval_jmp_op(Continuation *cont) {
     Element n;
     stack_pop(stack, &n);
 
+    assert(n.etype == ELEMENT_NUMBER);
+
     cont_proceed(cont, n.u.number);
 }
 
@@ -213,6 +217,9 @@ void eval_jmp_not_if_op(Continuation *cont) {
     Element cond, n;
     stack_pop(stack, &n);
     stack_pop(stack, &cond);
+
+    assert(n.etype == ELEMENT_NUMBER);
+    assert(cond.etype == ELEMENT_NUMBER);
 
     if (element_is_false(&cond)) {
         cont_proceed(cont, n.u.number);
@@ -403,6 +410,9 @@ void eval() {
     stack_pop(stack, &a); \
     stack_pop(stack, &b); \
     \
+    assert(a.etype == ELEMENT_NUMBER); \
+    assert(b.etype == ELEMENT_NUMBER); \
+    \
     result.etype = ELEMENT_NUMBER; \
     result.u.number = (exp); \
     \
@@ -466,6 +476,8 @@ void index_op() {
     Element n;
     stack_pop(stack, &n);
 
+    assert(n.etype == ELEMENT_NUMBER);
+
     Element out;
     stack_peek(stack, n.u.number, &out);
 
@@ -476,6 +488,9 @@ void roll_op() {
     Element n, j;
     stack_pop(stack, &j);
     stack_pop(stack, &n);
+
+    assert(j.etype == ELEMENT_NUMBER);
+    assert(n.etype == ELEMENT_NUMBER);
 
     int length = n.u.number;
     int rotn = j.u.number;

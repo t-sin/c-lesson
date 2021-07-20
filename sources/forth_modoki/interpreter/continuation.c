@@ -18,6 +18,8 @@ void copy_continuation(Continuation *dest, Continuation *src) {
 }
 
 void cont_proceed(Continuation *cont, int n) {
+    assert(cont->ctype == CONT_CONT);
+
     cont->u.c.pc += n;
 }
 
